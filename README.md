@@ -1,1 +1,3 @@
 # lacmta-gtfs
+
+Automation works!
