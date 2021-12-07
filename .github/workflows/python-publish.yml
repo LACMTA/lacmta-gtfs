@@ -36,9 +36,3 @@ jobs:
         FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
         FTP_PASS: ${{ secrets.FTP_PASS }}
         SERVER: ${{ secrets.SERVER }} 
-    - name: Clone supercharge docs repository
-      uses: actions/checkout@v2
-      with:
-        repository: lacmta/lacmta-gtfs
-        path: /data/
-        ref: 2.x
