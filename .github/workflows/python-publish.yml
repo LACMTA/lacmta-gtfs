@@ -12,9 +12,9 @@ on:
   schedule:
     # Runs "at minute 55 past every hour" (see https://crontab.guru)
     - cron: '0 8 * * *'
-  push:
-    branches: 
-      - main
+  # push:
+  #   branches: 
+  #     - main
 jobs:
   deploy:
 
