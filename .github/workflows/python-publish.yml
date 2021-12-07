@@ -34,5 +34,5 @@ jobs:
       run: python update_gtfs.py 
       env:
         FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASS: ${{ secrets.FTP_USERNAME }}
+        FTP_PASS: ${{ secrets.FTP_PASS }}
         SERVER: ${{ secrets.SERVER }} 

@@ -5,7 +5,6 @@ import re
 USER = os.environ.get('FTP_USERNAME')
 PASS = os.environ.get('FTP_PASS')
 SERVER = os.environ.get('SERVER')
-print(SERVER)
 REMOTEPATH = '/nextbus/prod/'
 
 ftp = ftplib.FTP(SERVER)
