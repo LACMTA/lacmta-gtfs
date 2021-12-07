@@ -17,6 +17,12 @@ ftp.cwd(directory)
 ftp.retrlines("LIST")
 os.chdir("data/")
 
+def push_to_github():
+    os.system('git pull')
+    os.system('git add .')
+    os.system('git commit -m "Auto update"')
+    os.system('git push')
+
 for filename in ftp.nlst(filematch): # Loop - looking for matching files
     fhandle = open(filename, 'wb')
     print('Getting ' + filename) #for confort sake, shows the file that's being retrieved
@@ -25,8 +31,3 @@ for filename in ftp.nlst(filematch): # Loop - looking for matching files
 
 push_to_github()
     
-def push_to_github():
-    os.system('git pull')
-    os.system('git add .')
-    os.system('git commit -m "Auto update"')
-    os.system('git push')
