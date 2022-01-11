@@ -5,6 +5,7 @@ import datetime
 import csv
 from typing import Dict
 import pytz
+import PyRSS2Gen
 
 # for running locally
 from config import Config
@@ -113,12 +114,31 @@ def push_to_github():
 	os.system('git commit -m "Auto update"')
 	os.system('git push')
 
+def update_rss():
+	rss = PyRSS2Gen.RSS2(
+		title = "LACMTA Bus GTFS Updates",
+		link = "https://gitlab.com/LACMTA/gtfs_bus",
+		description = "This RSS feed updates when the LA Metro Bus GTFS data is updated.",
+		lastBuildDate = datetime.datetime.now(),
+		items = [
+			PyRSS2Gen.RSSItem(
+				title = "Weekly calendar_dates.txt update",
+				link = "https://gitlab.com/LACMTA/gtfs_bus",
+				description = "The weekly calendar_dates.txt file has been updated.",
+				pubDate = datetime.datetime.now()
+			)])
+
+	rss.write_xml(open("rss.xml", "w"))
+
 def main():
 	if get_file_from_ftp():
 		date_range = get_start_and_end_dates()
 		add_extra_lines(date_range)
 		print(date_range)
+	update_rss()
+
 main()
+
 # add_extra_lines()
 
 # push_to_github()
