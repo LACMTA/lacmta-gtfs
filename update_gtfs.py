@@ -7,8 +7,8 @@ from typing import Dict
 import pytz
 import PyRSS2Gen
 
-# for running locally
-from config import Config
+# for running locally (comment out for production)
+# from import Config
 
 WORKSPACE = os.environ.get('GITHUB_WORKSPACE')
 CALENDAR_DATES_FILE = "calendar_dates.txt"
@@ -17,15 +17,15 @@ REMOTEPATH = '/nextbus/prod/'
 directory = REMOTEPATH
 
 # for production
-# USER = os.environ.get('FTP_USERNAME')
-# PASS = os.environ.get('FTP_PASS')
-# SERVER = os.environ.get('SERVER')
-# ftp = ftplib.FTP(SERVER)
-# ftp.login(USER, PASS)
+USER = os.environ.get('FTP_USERNAME')
+PASS = os.environ.get('FTP_PASS')
+SERVER = os.environ.get('SERVER')
+ftp = ftplib.FTP(SERVER)
+ftp.login(USER, PASS)
 
-# for running locally
-ftp = ftplib.FTP(Config.SERVER)
-ftp.login(Config.USERNAME, Config.PASS)
+# for running locally (comment out for production)
+# ftp = ftplib.FTP(Config.SERVER)
+# ftp.login(Config.USERNAME, Config.PASS)
 
 
 ftp.cwd(directory)
