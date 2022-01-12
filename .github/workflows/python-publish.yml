@@ -30,10 +30,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-#     - name: Install dependencies
-#       run: |
-#         python -m pip install --upgrade pip
-#         pip install build
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # pip install build
+        pip install pytz
+        pip install PyRSS2Gen
     - name: Connect to the remote FTP
       run: python update_gtfs.py 
       env:
