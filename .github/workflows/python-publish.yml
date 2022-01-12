@@ -9,9 +9,10 @@
 name: Upload Python Package
 
 on:
-  schedule:
+  #schedule:
     # Runs "at minute 55 past every hour" (see https://crontab.guru)
-    - cron: '0 8 * * *'
+    #- cron: '0 8 * * *'
+  workflow_dispatch
   # push:
   #   branches: 
   #     - main
