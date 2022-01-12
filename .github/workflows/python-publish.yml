@@ -9,10 +9,11 @@
 name: Upload Python Package
 
 on:
-  #schedule:
-    # Runs "at minute 55 past every hour" (see https://crontab.guru)
-    #- cron: '0 8 * * *'
-  workflow_dispatch
+  schedule:
+    # Runs "at 11:00 UTC (3am PST) on Wednesday" (see https://crontab.guru)
+    # calendar_txt is auto-generated at 12am every Wednesday morning and should finish by 12:30am
+    - cron: '0 11 * * WED' 
+  # workflow_dispatch # for manual runs
   # push:
   #   branches: 
   #     - main
