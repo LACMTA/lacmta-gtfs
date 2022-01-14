@@ -9,69 +9,77 @@ import requests
 
 from utils.ftp_helper import *
 from utils.date_helper import *
+from utils.log_helper import *
 
-# for running locally (comment out for production)
-# from import Config
+log = build_log(True)
 
-WORKSPACE = os.environ.get('GITHUB_WORKSPACE')
-CALENDAR_DATES_WEEKLY = "calendar_dates.txt"
-CALENDAR_DATES_SHAKEUP = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates.txt"
+CALENDAR_DATES_CURRENT = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates/calendar_dates.txt"
+#CALENDAR_DATES_SHAKEUP = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates.txt"
 CALENDAR_DATES_EXPRESS = "../inputs/dse-sofi-express.csv"
+CALENDAR_DATES_CURRENT_NEW = "current/calendar_dates.txt"
 
-REMOTEPATH = '/nextbus/prod/'
-directory = REMOTEPATH
+ROOT_DIR = os.getcwd()
+CALENDAR_DATES_FILENAME = 'calendar_dates.txt'
+EXPRESS_FILENAME = 'dse-sofi-express.csv'
 
-def compare_line_to_date(line, date_range):
-	if line == '':
-		return line
+REMOTE_FTP_PATH = '/nextbus/prod/'
+REMOTE_CURRENT_PATH = 'https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates/calendar_dates.txt'
+
+OUTPUT_PATH = ROOT_DIR + '/data/' + CALENDAR_DATES_FILENAME
+
+INPUT_DIR = ROOT_DIR + '/inputs/'
+INPUT_WEEKLY_DIR = ROOT_DIR + '/inputs/weekly/'
+#INPUT_WEEKLY_PATH = INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME
+#INPUT_EXPRESS_PATH = ROOT_DIR + '/inputs/dse-sofi-express.csv'
+
+def is_in_date_range(date, range):
+	if date >= range['start_date'] and date <= range['end_date']:
+		return True
 	else:
-		line_date = line.split(',')[1]
-		line_date = convert_text_to_date(line_date)
-		if line_date >= date_range['start_date'] and line_date <= date_range['end_date']:
-			return line
-		else:
-			return None
+		return False
 
-def shift_date_to_wednesday(date):
+def first_wednesday_before_date(date):
 	while date.strftime('%A') != 'Wednesday':
 		date = date + datetime.timedelta(days=-1)
 	if date.strftime('%A') == 'Wednesday':
 		return date
 
-def get_start_and_end_dates():
+def get_date_range(list_data):
 	start_date = ''
 	
-	with open(CALENDAR_DATES_WEEKLY, 'r') as file_with_dates:
-		next(file_with_dates, None) # skip the header
-		lines = file_with_dates.readlines()
-		print(lines)
-
-		for line in lines:
-			row = line.split(',')
-			row_date = convert_text_to_date(row[1])
-
-			if start_date == '':
-				start_date = row_date
-			if row_date < start_date:
-				start_date = row_date
-			print('row_date: ' + str(row_date))
-		print('start_date: ' + str(start_date))
-		if start_date.strftime('%A') != 'Wednesday':
-			print('not a Wednesday')
-			start_date = shift_date_to_wednesday(start_date)
-
-	start_end_date = {"start_date": start_date, "end_date": start_date + datetime.timedelta(weeks=2)}
+	for row in list_data:
+		if (row[1] == 'date'):
+			continue
+		row_date = convert_text_to_date(row[1])
+		if start_date == '' or row_date < start_date:
+			start_date = row_date
+	
+	if start_date.strftime('%A') != 'Wednesday':
+		start_date = first_wednesday_before_date(start_date)
+	
+	start_end_date = {
+		'start_date': start_date,
+		'end_date': start_date + datetime.timedelta(weeks=2)
+	}
 	return start_end_date
 
-def add_extra_lines(date_range):
-	with open(CALENDAR_DATES_WEEKLY, 'a') as resulting_file:
-		with open(CALENDAR_DATES_EXPRESS, 'r') as f:
-			print(resulting_file)
-			lines = f.readlines()
-			for line in lines:
-				if (compare_line_to_date(line, date_range)):
-					resulting_file.write(line)
-	return
+def get_file_as_list(file):
+	result = csv.reader(open(file, 'r'))
+	log("Read " + file)
+	return list(result)
+
+def get_in_date_range(list_data, data_range):
+	result_data = []
+	count = 0 
+	for row in list_data:
+		if (row[1] == 'date'):
+			continue
+		row_date = convert_text_to_date(row[1])
+		if is_in_date_range(row_date, data_range):
+			count += 1
+			result_data.append(row)
+	log("Found " + str(count) + " lines")
+	return result_data
 
 def push_to_github():
 	os.system('git pull')
@@ -95,40 +103,72 @@ def update_rss():
 
 	rss.write_xml(open("rss.xml", "w"))
 
-def get_shakeup_calendar_dates(url):
+def get_url_as_list(url):
 	response = requests.get(url)
 	csv_response = csv.reader(response.text.splitlines())
-	return csv_response
+	log("Read " + url)
+	return list(csv_response)
 
-def update_shakeup_calendar_dates(data, date_range):
-	# loop through `data` and check the dates, removing any that are in the date range
-
-	result_csv = []
-	next(data)
+def remove_in_date_range(list_data, date_range):
+	result_data = []
 	count = 0 
-	for row in data:
-		if convert_text_to_date(row[1]) >= date_range['start_date'] and convert_text_to_date(row[1]) <= date_range['end_date']:
-			# print("this row was removed: "+str(row))
+	for row in list_data:
+		if (row[1] == 'date'):
+			result_data.append(row)
+			continue
+		row_date = convert_text_to_date(row[1])
+
+		if is_in_date_range(row_date, date_range):
 			count += 1
 			continue
 		else:
-			result_csv.append(row)
-	print("removed "+str(count)+" lines")
-	#print(result_csv)
+			result_data.append(row)
+	
+	log("Removed " + str(count) + " lines")
+	return result_data
+
+def write_data_to_file(list_data, filepath):
+	with open(filepath, 'w') as f:
+		writer = csv.writer(f)
+		writer.writerows(list_data)
+	log("Wrote " + filepath)
 	return
 
+def combine_list_data(data_1, data_2):
+	result_data = []
+	for row in data_1:
+		result_data.append(row)
+	for row in data_2:
+		# remove header row from data_2 if it exists
+		if (row[1] == 'date'):
+			continue
+		result_data.append(row)
+	return result_data
+
 def main():
-	connect_to_ftp(directory, "data/")
-	if get_file_from_ftp(CALENDAR_DATES_WEEKLY):
-		date_range = get_start_and_end_dates()
-		add_extra_lines(date_range)
-		print(date_range)
-	shakeup_data = get_shakeup_calendar_dates(CALENDAR_DATES_SHAKEUP)
-	update_shakeup_calendar_dates(shakeup_data, date_range)
-	update_rss()
+	if connect_to_ftp(REMOTE_FTP_PATH):
+		log("I'm CONNECTED!")
+
+	if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+		
+		weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+		date_range = get_date_range(weekly_data)
+
+		express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+		express_data = get_in_date_range(express_data, date_range)
+
+		weekly_express_combined_data = combine_list_data(weekly_data, express_data)
+		
+		current_data = get_url_as_list(REMOTE_CURRENT_PATH)
+		current_data = remove_in_date_range(current_data, date_range)
+		
+		result = combine_list_data(current_data, weekly_express_combined_data)
+		write_data_to_file(result, OUTPUT_PATH)
+	
+	disconnect_from_ftp()
 
 main()
 
-# add_extra_lines()
-
 # push_to_github()
+# push to gitlab
+# update_rss()
