@@ -29,14 +29,6 @@ OUTPUT_PATH = ROOT_DIR + '/data/' + CALENDAR_DATES_FILENAME
 
 INPUT_DIR = ROOT_DIR + '/inputs/'
 INPUT_WEEKLY_DIR = ROOT_DIR + '/inputs/weekly/'
-#INPUT_WEEKLY_PATH = INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME
-#INPUT_EXPRESS_PATH = ROOT_DIR + '/inputs/dse-sofi-express.csv'
-
-def is_in_date_range(date, range):
-	if date >= range['start_date'] and date <= range['end_date']:
-		return True
-	else:
-		return False
 
 def first_wednesday_before_date(date):
 	while date.strftime('%A') != 'Wednesday':
@@ -63,10 +55,11 @@ def get_date_range(list_data):
 	}
 	return start_end_date
 
-def get_file_as_list(file):
-	result = csv.reader(open(file, 'r'))
-	log("Read " + file)
-	return list(result)
+def is_in_date_range(date, range):
+	if date >= range['start_date'] and date <= range['end_date']:
+		return True
+	else:
+		return False
 
 def get_in_date_range(list_data, data_range):
 	result_data = []
@@ -80,34 +73,6 @@ def get_in_date_range(list_data, data_range):
 			result_data.append(row)
 	log("Found " + str(count) + " lines")
 	return result_data
-
-def push_to_github():
-	os.system('git pull')
-	os.system('git add .')
-	os.system('git commit -m "Auto update"')
-	os.system('git push')
-
-def update_rss():
-	rss = PyRSS2Gen.RSS2(
-		title = "LACMTA Bus GTFS Updates",
-		link = "https://gitlab.com/LACMTA/gtfs_bus",
-		description = "This RSS feed updates when the LA Metro Bus GTFS data is updated.",
-		lastBuildDate = datetime.datetime.now(),
-		items = [
-			PyRSS2Gen.RSSItem(
-				title = "Weekly calendar_dates.txt update",
-				link = "https://gitlab.com/LACMTA/gtfs_bus",
-				description = "The weekly calendar_dates.txt file has been updated.",
-				pubDate = datetime.datetime.now()
-			)])
-
-	rss.write_xml(open("rss.xml", "w"))
-
-def get_url_as_list(url):
-	response = requests.get(url)
-	csv_response = csv.reader(response.text.splitlines())
-	log("Read " + url)
-	return list(csv_response)
 
 def remove_in_date_range(list_data, date_range):
 	result_data = []
@@ -127,12 +92,16 @@ def remove_in_date_range(list_data, date_range):
 	log("Removed " + str(count) + " lines")
 	return result_data
 
-def write_data_to_file(list_data, filepath):
-	with open(filepath, 'w') as f:
-		writer = csv.writer(f)
-		writer.writerows(list_data)
-	log("Wrote " + filepath)
-	return
+def get_file_as_list(file):
+	result = csv.reader(open(file, 'r'))
+	log("Read " + file)
+	return list(result)
+
+def get_url_as_list(url):
+	response = requests.get(url)
+	csv_response = csv.reader(response.text.splitlines())
+	log("Read " + url)
+	return list(csv_response)
 
 def combine_list_data(data_1, data_2):
 	result_data = []
@@ -145,30 +114,60 @@ def combine_list_data(data_1, data_2):
 		result_data.append(row)
 	return result_data
 
+def write_data_to_file(list_data, filepath):
+	with open(filepath, 'w') as f:
+		writer = csv.writer(f)
+		writer.writerows(list_data)
+	log("Wrote " + filepath)
+	return
+
+def push_to_github():
+	os.system('git pull')
+	os.system('git add .')
+	os.system('git commit -m "Auto update"')
+	os.system('git push')
+	return
+
+def update_rss():
+	rss = PyRSS2Gen.RSS2(
+		title = "LACMTA Bus GTFS Updates",
+		link = "https://gitlab.com/LACMTA/gtfs_bus",
+		description = "This RSS feed updates when the LA Metro Bus GTFS data is updated.",
+		lastBuildDate = datetime.datetime.now(),
+		items = [
+			PyRSS2Gen.RSSItem(
+				title = "Weekly calendar_dates.txt update",
+				link = "https://gitlab.com/LACMTA/gtfs_bus",
+				description = "The weekly calendar_dates.txt file has been updated.",
+				pubDate = datetime.datetime.now()
+			)])
+
+	rss.write_xml(open("rss.xml", "w"))
+	return
+
 def main():
 	if connect_to_ftp(REMOTE_FTP_PATH):
-		log("I'm CONNECTED!")
+		if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+			weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+			
+			date_range = get_date_range(weekly_data)
 
-	if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+			express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+			express_data = get_in_date_range(express_data, date_range)
+
+			weekly_express_combined_data = combine_list_data(weekly_data, express_data)
+			
+			current_data = get_url_as_list(REMOTE_CURRENT_PATH)
+			current_data = remove_in_date_range(current_data, date_range)
+			
+			result = combine_list_data(current_data, weekly_express_combined_data)
+			write_data_to_file(result, OUTPUT_PATH)
+
+			push_to_github()
+			update_rss()
 		
-		weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
-		date_range = get_date_range(weekly_data)
-
-		express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-		express_data = get_in_date_range(express_data, date_range)
-
-		weekly_express_combined_data = combine_list_data(weekly_data, express_data)
-		
-		current_data = get_url_as_list(REMOTE_CURRENT_PATH)
-		current_data = remove_in_date_range(current_data, date_range)
-		
-		result = combine_list_data(current_data, weekly_express_combined_data)
-		write_data_to_file(result, OUTPUT_PATH)
-	
-	disconnect_from_ftp()
-
+		disconnect_from_ftp()
 main()
 
-# push_to_github()
+
 # push to gitlab
-# update_rss()
