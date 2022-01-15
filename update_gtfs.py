@@ -25,7 +25,7 @@ EXPRESS_FILENAME = 'dse-sofi-express.csv'
 REMOTE_FTP_PATH = '/nextbus/prod/'
 REMOTE_CURRENT_PATH = 'https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates/calendar_dates.txt'
 
-OUTPUT_PATH = ROOT_DIR + '/data/' + CALENDAR_DATES_FILENAME
+OUTPUT_DIR = ROOT_DIR + '/data/'
 
 INPUT_DIR = ROOT_DIR + '/inputs/'
 INPUT_WEEKLY_DIR = ROOT_DIR + '/inputs/weekly/'
@@ -129,20 +129,22 @@ def push_to_github():
 	return
 
 def update_rss():
+	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
+
 	rss = PyRSS2Gen.RSS2(
 		title = "LACMTA Bus GTFS Updates",
 		link = "https://gitlab.com/LACMTA/gtfs_bus",
 		description = "This RSS feed updates when the LA Metro Bus GTFS data is updated.",
-		lastBuildDate = datetime.datetime.now(),
+		lastBuildDate = datetime.datetime.now(pytz.timezone('US/Pacific')),
 		items = [
 			PyRSS2Gen.RSSItem(
 				title = "Weekly calendar_dates.txt update",
 				link = "https://gitlab.com/LACMTA/gtfs_bus",
 				description = "The weekly calendar_dates.txt file has been updated.",
-				pubDate = datetime.datetime.now()
+				pubDate = datetime.datetime.now(pytz.timezone('US/Pacific'))
 			)])
 
-	rss.write_xml(open("rss.xml", "w"))
+	rss.write_xml(open(OUTPUT_DIR + "rss.xml", "w"))
 	return
 
 def main():
@@ -161,9 +163,9 @@ def main():
 			current_data = remove_in_date_range(current_data, date_range)
 			
 			result = combine_list_data(current_data, weekly_express_combined_data)
-			write_data_to_file(result, OUTPUT_PATH)
+			write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
 
-			push_to_github()
+			# push_to_github()
 			update_rss()
 		
 		disconnect_from_ftp()
