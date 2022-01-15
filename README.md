@@ -2,6 +2,8 @@
 
 Automation works!
 
+The file at `/inputs/dse-sofi-express.csv` contains special Express Bus service serving Dodger Stadium and SoFi Stadium during baseball and football seasons.
+
 ## Details
 
 Run weekly, Wednesdays in the AM:
