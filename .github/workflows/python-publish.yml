@@ -6,17 +6,17 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package
+name: Update Calendar Dates
 
 on:
   schedule:
     # Runs "at 11:00 UTC (3am PST) on Wednesday" (see https://crontab.guru)
     # calendar_txt is auto-generated at 12am every Wednesday morning and should finish by 12:30am
-    - cron: '0 11 * * WED' 
+    # - cron: '0 11 * * WED' 
   # workflow_dispatch # for manual runs
-  # push:
-  #   branches: 
-  #     - main
+  push:
+    branches: 
+      - main
 jobs:
   deploy:
 
