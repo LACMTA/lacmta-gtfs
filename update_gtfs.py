@@ -130,7 +130,7 @@ def push_to_github():
 
 def push_to_gitlab():
 	#os.system('git -C scratch clone https://gitlab.com/LACMTA/gtfs_bus.git')
-	os.system('git -C scratch clone https://oauth2:' + Config.GITLAB_TOKEN + 'gitlab.com/LACMTA/token-test.git')
+	os.system('git -C scratch clone https://oauth2:' + Config.GITLAB_TOKEN + '@gitlab.com/LACMTA/token-test.git')
 	os.system('cp data/calendar_dates.txt scratch/token-test/calendar_dates.txt')
 	#os.system('cp data/calendar_dates.txt scratch/gtfs_bus/calendar_dates/calendar_dates.txt')
 	os.system('git add .')
