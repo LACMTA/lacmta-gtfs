@@ -168,7 +168,7 @@ def push_to_gitlab():
 	os.system('if [ -d ' + scratch_dir + ' ]; then rm -rf ' + scratch_dir + '; fi')
 	os.system('mkdir ' + scratch_dir)
 	os.system('mkdir ' + target_dir)
-	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com' + target_gitlab)
+	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab)
 	os.system('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates.txt')
 	os.system('git -C ' + target_dir + ' add .')
 	os.system('git -C ' + target_dir + ' commit -m "Auto update calendar_dates"')
