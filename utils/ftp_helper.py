@@ -1,43 +1,24 @@
 import ftplib
 import os
 
-RUNNING_LOCALLY = None
-FTP_SERVER = None
-FTP_USER = None
-FTP_PW = None
-
-try:
-    from config import *
-    RUNNING_LOCALLY = True
-except ImportError:
-    RUNNING_LOCALLY = False
-    print('No config file found. Using default values.')
-
-if not RUNNING_LOCALLY:
-    FTP_SERVER = os.environ.get('SERVER')
-    FTP_USER = os.environ.get('FTP_USERNAME')
-    FTP_PW = os.environ.get('FTP_PASS')
-
-if RUNNING_LOCALLY:
-    FTP_SERVER = Config.SERVER
-    FTP_USER = Config.USERNAME
-    FTP_PW = Config.PASS
-
 ftp_client = None
+ftp_server = ''
 
-def connect_to_ftp(remote_dir):
+def connect_to_ftp(remote_dir, server, user, pw):
 	global ftp_client 
+	global ftp_server
+	ftp_server = server
 	
-	ftp_client = ftplib.FTP(FTP_SERVER)
-	login_result = ftp_client.login(FTP_USER, FTP_PW)
+	ftp_client = ftplib.FTP(server)
+	login_result = ftp_client.login(user, pw)
 	
 	if '230' in login_result:
-		print("Connected to " + FTP_SERVER)
+		print("Connected to " + server)
 		ftp_client.cwd(remote_dir)
 		print("Remote directory: " + ftp_client.pwd())
 		return True
 	else:
-		print("Failed to connect to " + FTP_SERVER)
+		print("Failed to connect to " + server)
 		return False
 	#ftp.retrlines("LIST")
 
@@ -57,4 +38,4 @@ def get_file_from_ftp(file, local_dir):
 
 def disconnect_from_ftp():
 	ftp_client.quit()
-	print("Disconnected from " + FTP_SERVER)
+	print("Disconnected from " + ftp_server)

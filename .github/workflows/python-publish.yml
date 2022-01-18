@@ -44,7 +44,7 @@ jobs:
         FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
         FTP_PASS: ${{ secrets.FTP_PASS }}
         SERVER: ${{ secrets.SERVER }} 
-        GITLAB: ${{ secrets.GITLAB_PUSH_TOKEN }}
+        GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
     - uses: EndBug/add-and-commit@v7
       with:
         message: Auto Updated on ${{ steps.date.outputs.date }}

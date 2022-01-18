@@ -11,6 +11,32 @@ from utils.ftp_helper import *
 from utils.date_helper import *
 from utils.log_helper import *
 
+
+RUNNING_LOCALLY = None
+FTP_SERVER = None
+FTP_USER = None
+FTP_PW = None
+GITLAB_TOKEN = None
+
+try:
+    from config import *
+    RUNNING_LOCALLY = True
+except ImportError:
+    RUNNING_LOCALLY = False
+    print('No config file found. Using default values.')
+
+if not RUNNING_LOCALLY:
+	FTP_SERVER = os.environ.get('SERVER')
+	FTP_USER = os.environ.get('FTP_USERNAME')
+	FTP_PW = os.environ.get('FTP_PASS')
+	GITLAB_TOKEN = os.environ.get('GITLAB_TOKEN')
+
+if RUNNING_LOCALLY:
+	FTP_SERVER = Config.SERVER
+	FTP_USER = Config.USERNAME
+	FTP_PW = Config.PASS
+	GITLAB_TOKEN = Config.GITLAB_TOKEN
+
 log = build_log(True)
 
 CALENDAR_DATES_CURRENT = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates/calendar_dates.txt"
@@ -130,15 +156,23 @@ def push_to_github():
 
 def push_to_gitlab():
 	scratch_dir= 'scratch'
-	test_dir = 'scratch/token-test'
-	#os.system(scratch_dir_git + 'clone https://gitlab.com/LACMTA/gtfs_bus.git')
-	os.system('rm -rf ' + test_dir)
-	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + Config.GITLAB_TOKEN + '@gitlab.com/LACMTA/token-test.git')
-	os.system('cp data/calendar_dates.txt ' + test_dir + '/calendar_dates.txt')
-	#os.system('cp data/calendar_dates.txt scratch/gtfs_bus/calendar_dates/calendar_dates.txt')
-	os.system('git -C ' + test_dir + ' add .')
-	os.system('git -C ' + test_dir + ' commit -m "Auto update calendar_dates"')
-	os.system('git -C ' + test_dir + ' push')
+	
+	# Test repository:
+	target_dir = 'scratch/token-test'
+	target_gitlab = 'LACMTA/token-test.git'
+
+	# GTFS Bus repository:
+	# target_dir = 'scratch/gtfs_bus'
+	# target_gitlab = 'LACMTA/gtfs_bus.git'
+
+	os.system('if [ -d ' + scratch_dir + ' ]; then rm -rf ' + scratch_dir + '; fi')
+	os.system('mkdir ' + scratch_dir)
+	os.system('mkdir ' + target_dir)
+	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + Config.GITLAB_TOKEN + '@gitlab.com' + target_gitlab)
+	os.system('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates.txt')
+	os.system('git -C ' + target_dir + ' add .')
+	os.system('git -C ' + target_dir + ' commit -m "Auto update calendar_dates"')
+	os.system('git -C ' + target_dir + ' push')
 	return
 
 def update_rss():
@@ -161,28 +195,29 @@ def update_rss():
 	return
 
 def main():
-	# if connect_to_ftp(REMOTE_FTP_PATH):
-	# 	if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
-	# 		weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+	if connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
+		if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+			weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
 			
-	# 		date_range = get_date_range(weekly_data)
+			date_range = get_date_range(weekly_data)
 
-	# 		express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-	# 		express_data = get_in_date_range(express_data, date_range)
+			express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+			express_data = get_in_date_range(express_data, date_range)
 
-	# 		weekly_express_combined_data = combine_list_data(weekly_data, express_data)
+			weekly_express_combined_data = combine_list_data(weekly_data, express_data)
 			
-	# 		current_data = get_url_as_list(REMOTE_CURRENT_PATH)
-	# 		current_data = remove_in_date_range(current_data, date_range)
+			current_data = get_url_as_list(REMOTE_CURRENT_PATH)
+			current_data = remove_in_date_range(current_data, date_range)
 			
-	# 		result = combine_list_data(current_data, weekly_express_combined_data)
-	# 		write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
+			result = combine_list_data(current_data, weekly_express_combined_data)
+			write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
 
-	# 		# push_to_github()
-	# 		update_rss()
+			# push_to_github()
+			push_to_gitlab()
+			update_rss()
 		
-	# 	disconnect_from_ftp()
-	push_to_gitlab()
+		disconnect_from_ftp()
+	
 main()
 
 
