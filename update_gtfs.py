@@ -129,13 +129,16 @@ def push_to_github():
 	return
 
 def push_to_gitlab():
-	#os.system('git -C scratch clone https://gitlab.com/LACMTA/gtfs_bus.git')
-	os.system('git -C scratch clone https://oauth2:' + Config.GITLAB_TOKEN + '@gitlab.com/LACMTA/token-test.git')
-	os.system('cp data/calendar_dates.txt scratch/token-test/calendar_dates.txt')
+	scratch_dir= 'scratch'
+	test_dir = 'scratch/token-test'
+	#os.system(scratch_dir_git + 'clone https://gitlab.com/LACMTA/gtfs_bus.git')
+	os.system('rm -rf ' + test_dir)
+	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + Config.GITLAB_TOKEN + '@gitlab.com/LACMTA/token-test.git')
+	os.system('cp data/calendar_dates.txt ' + test_dir + '/calendar_dates.txt')
 	#os.system('cp data/calendar_dates.txt scratch/gtfs_bus/calendar_dates/calendar_dates.txt')
-	os.system('git add .')
-	os.system('git commit -m "Auto update calendar_dates"')
-	os.system('git push')
+	os.system('git -C ' + test_dir + ' add .')
+	os.system('git -C ' + test_dir + ' commit -m "Auto update calendar_dates"')
+	os.system('git -C ' + test_dir + ' push')
 	return
 
 def update_rss():
