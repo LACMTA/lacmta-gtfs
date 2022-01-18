@@ -11,14 +11,15 @@ name: Update Calendar Dates
 on:
   # calendar_txt is auto-generated at 12am every Wednesday morning and should finish by 12:30am
   # Uncomment below for auto-runs (runs at 11:00 UTC (3am PTC) Wednesdays - see https://crontab.guru):
-  # schedule:
-  #   - cron: '0 11 * * WED' 
-  
+#   schedule:
+#     - cron: '0 11 * * WED' 
+#   push:
+#     branches: 
+#       - main
+
   # Uncomment below for manual runs:
   workflow_dispatch
-    push:
-      branches: 
-        - main
+
 
 jobs:
   deploy:
