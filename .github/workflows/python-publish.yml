@@ -42,6 +42,7 @@ jobs:
         # pip install build
         pip install pytz
         pip install PyRSS2Gen
+        pip install requests
     - name: Connect to the remote FTP
       run: python update_gtfs.py 
       env:
