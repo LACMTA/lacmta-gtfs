@@ -128,6 +128,16 @@ def push_to_github():
 	os.system('git push')
 	return
 
+def push_to_gitlab():
+	#os.system('git -C scratch clone https://gitlab.com/LACMTA/gtfs_bus.git')
+	os.system('git -C scratch clone https://oauth2:' + Config.GITLAB_TOKEN + 'gitlab.com/LACMTA/token-test.git')
+	os.system('cp data/calendar_dates.txt scratch/token-test/calendar_dates.txt')
+	#os.system('cp data/calendar_dates.txt scratch/gtfs_bus/calendar_dates/calendar_dates.txt')
+	os.system('git add .')
+	os.system('git commit -m "Auto update calendar_dates"')
+	os.system('git push')
+	return
+
 def update_rss():
 	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
 
@@ -148,27 +158,28 @@ def update_rss():
 	return
 
 def main():
-	if connect_to_ftp(REMOTE_FTP_PATH):
-		if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
-			weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+	# if connect_to_ftp(REMOTE_FTP_PATH):
+	# 	if get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+	# 		weekly_data = get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
 			
-			date_range = get_date_range(weekly_data)
+	# 		date_range = get_date_range(weekly_data)
 
-			express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			express_data = get_in_date_range(express_data, date_range)
+	# 		express_data = get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+	# 		express_data = get_in_date_range(express_data, date_range)
 
-			weekly_express_combined_data = combine_list_data(weekly_data, express_data)
+	# 		weekly_express_combined_data = combine_list_data(weekly_data, express_data)
 			
-			current_data = get_url_as_list(REMOTE_CURRENT_PATH)
-			current_data = remove_in_date_range(current_data, date_range)
+	# 		current_data = get_url_as_list(REMOTE_CURRENT_PATH)
+	# 		current_data = remove_in_date_range(current_data, date_range)
 			
-			result = combine_list_data(current_data, weekly_express_combined_data)
-			write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
+	# 		result = combine_list_data(current_data, weekly_express_combined_data)
+	# 		write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
 
-			# push_to_github()
-			update_rss()
+	# 		# push_to_github()
+	# 		update_rss()
 		
-		disconnect_from_ftp()
+	# 	disconnect_from_ftp()
+	push_to_gitlab()
 main()
 
 
