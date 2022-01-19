@@ -158,8 +158,10 @@ def push_to_gitlab():
 	scratch_dir= 'scratch'
 
 	# Test repository:
-	target_dir = 'scratch/token-test'
+	repo_dir = 'token-test'
 	target_gitlab = 'LACMTA/token-test.git'
+
+	target_dir = scratch_dir + '/' + repo_dir
 
 	# GTFS Bus repository:
 	# target_dir = 'scratch/gtfs_bus'
@@ -169,6 +171,9 @@ def push_to_gitlab():
 	os.system('mkdir ' + scratch_dir)
 	os.system('mkdir ' + target_dir)
 	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab)
+	os.system('git -C ' + target_dir + ' config user.email "kinn@metro.net"')
+	os.system('git -C ' + target_dir + ' config user.name "Nina Kin"')
+
 	os.system('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates.txt')
 	os.system('git -C ' + target_dir + ' add .')
 	os.system('git -C ' + target_dir + ' commit -m "Auto update calendar_dates"')
