@@ -155,6 +155,7 @@ def push_to_github():
 	return
 
 def push_to_gitlab():
+	log('Start push to GitLab')
 	scratch_dir= 'scratch'
 
 	# Test repository:
@@ -178,6 +179,7 @@ def push_to_gitlab():
 	os.system('git -C ' + target_dir + ' add .')
 	os.system('git -C ' + target_dir + ' commit -m "Auto update calendar_dates"')
 	os.system('git -C ' + target_dir + ' push')
+	log('End push to GitLab')
 	return
 
 def update_rss():
