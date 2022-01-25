@@ -6,6 +6,7 @@ from typing import Dict
 import pytz
 import PyRSS2Gen
 import requests
+import subprocess
 
 from utils.ftp_helper import *
 from utils.date_helper import *
@@ -226,6 +227,3 @@ def main():
 		disconnect_from_ftp()
 	
 main()
-
-
-# push to gitlab
