@@ -13,7 +13,7 @@ on:
   # '0 11 * * WED' schedules the GitHub Actino to run at 11:00 UTC (3am PTC) every Wednesday
   # Uncomment below for auto runs:
   schedule:
-    - cron: '*/1 * * *' 
+    - cron: '*/5 * * *' 
   push:
     branches: 
       - main
