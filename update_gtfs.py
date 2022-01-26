@@ -160,26 +160,60 @@ def push_to_gitlab():
 	scratch_dir= 'scratch'
 
 	# Test repository:
-	repo_dir = 'token-test'
-	target_gitlab = 'LACMTA/token-test.git'
+	# repo_dir = 'token-test'
+	# target_gitlab = 'LACMTA/token-test.git'
+
+	# GTFS Bus repository:
+	repo_dir = 'gtfs_bus'
+	target_gitlab = 'LACMTA/gtfs_bus.git'
 
 	target_dir = scratch_dir + '/' + repo_dir
 
-	# GTFS Bus repository:
-	# target_dir = 'scratch/gtfs_bus'
-	# target_gitlab = 'LACMTA/gtfs_bus.git'
+	output = subprocess.run('if [ -d ' + scratch_dir + ' ]; then rm -rf ' + scratch_dir + '; fi', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Clean up scratch directory')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+	
+	output = subprocess.run('mkdir ' + scratch_dir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Created scratch directory')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+	
+	output = subprocess.run('mkdir ' + target_dir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Create target directory')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+	
+	output = subprocess.run('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Clone target repository')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
 
-	os.system('if [ -d ' + scratch_dir + ' ]; then rm -rf ' + scratch_dir + '; fi')
-	os.system('mkdir ' + scratch_dir)
-	os.system('mkdir ' + target_dir)
-	os.system('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab)
-	os.system('git -C ' + target_dir + ' config user.email "kinn@metro.net"')
-	os.system('git -C ' + target_dir + ' config user.name "Nina Kin"')
+	output = subprocess.run('git -C ' + target_dir + ' config user.email "kinn@metro.net"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Configure user.email')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
 
-	os.system('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates.txt')
-	os.system('git -C ' + target_dir + ' add .')
-	os.system('git -C ' + target_dir + ' commit -m "Auto update calendar_dates"')
-	os.system('git -C ' + target_dir + ' push')
+	output = subprocess.run('git -C ' + target_dir + ' config user.name "Nina Kin"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Configure user.name')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+	
+	output = subprocess.run('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates/calendar_dates.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Copy calendar_dates.txt')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+
+	output = subprocess.run('git -C ' + target_dir + ' commit -am "Auto update calendar_dates"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Commit calendar_dates.txt')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+
+	output = subprocess.run('git -C ' + target_dir + ' push', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	log('Push calendar_dates.txt')
+	log('Output: ' + output.stdout)
+	log('Errors: ' + output.stderr)
+	
 	log('End push to GitLab')
 	return
 

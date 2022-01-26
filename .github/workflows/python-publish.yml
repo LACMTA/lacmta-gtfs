@@ -10,16 +10,17 @@ name: Update Calendar Dates
 
 on:
   # calendar_txt is auto-generated at 12am every Wednesday morning and should finish by 12:30am
-  # '0 11 * * WED' schedules the GitHub Actino to run at 11:00 UTC (3am PTC) every Wednesday
+  # '0 11 * * WED' schedules the GitHub Action to run at 11:00 UTC (3am PTC) every Wednesday
+  # use '*/5 * * * *' for testing (GitHub Actions can be scheduled to run every 5 minutes)
   # Uncomment below for auto runs:
-  schedule:
-    - cron: '*/5 * * * *' 
-  push:
-    branches: 
-      - main
+  # schedule:
+  #   - cron: '0 11 * * WED' 
+  # push:
+  #   branches: 
+  #     - main
 
   # Uncomment below for manual runs:
-  # workflow_dispatch
+  workflow_dispatch
 
 
 jobs:
