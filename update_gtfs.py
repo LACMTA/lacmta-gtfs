@@ -185,7 +185,7 @@ def push_to_gitlab():
 	log('Errors: ' + output.stderr)
 	
 	output = subprocess.run('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Clone target repository: ' target_gitlab)
+	log('Clone target repository: ' + target_gitlab)
 	log('Output: ' + output.stdout)
 	log('Errors: ' + output.stderr)
 
