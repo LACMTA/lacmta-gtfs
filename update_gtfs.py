@@ -147,15 +147,15 @@ def main():
 		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
 			weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
 			
-			date_range = date_helper.get_date_range(weekly_data)
+			date_range = list_helper.get_date_range(weekly_data)
 
 			express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			express_data = date_helper.get_in_date_range(express_data, date_range)
+			express_data = list_helper.get_in_date_range(express_data, date_range)
 
 			weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
 			
 			current_data = list_helper.get_url_as_list(REMOTE_CURRENT_PATH)
-			current_data = date_helper.remove_in_date_range(current_data, date_range)
+			current_data = list_helper.remove_in_date_range(current_data, date_range)
 			
 			result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
 			list_helper.write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
