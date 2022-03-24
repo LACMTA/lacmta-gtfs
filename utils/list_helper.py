@@ -1,7 +1,10 @@
 import datetime
-import date_helper
 import requests
 import csv
+import utils.date_helper as date_helper
+import utils.log_helper as log_helper
+
+log = log_helper.build_log(True)
 
 def get_date_range(list_data):
 	start_date = ''
