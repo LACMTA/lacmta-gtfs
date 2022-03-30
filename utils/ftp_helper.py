@@ -1,5 +1,7 @@
 import ftplib
+from dateutil import parser
 import os
+import datetime
 
 ftp_client = None
 ftp_server = ''
@@ -25,16 +27,23 @@ def connect_to_ftp(remote_dir, server, user, pw):
 def get_file_from_ftp(file, local_dir):
 	for filename in ftp_client.nlst(file): # Loop - looking for matching files
 		if filename == file:
-			fhandle = open(local_dir + filename, 'wb')
-			print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
-			transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
-			fhandle.close()
-			if '226' in transfer_result:
-				print('Transfer complete: ' + local_dir + filename)
-				return True
-			else:
-				print('Transfer failed')
-				return False
+			timestamp = ftp_client.voidcmd("MDTM " + filename)[4:].strip()
+			time = parser.parse(timestamp)
+
+			if(time.date() == datetime.date.today()):
+				print("Found file modified today: " + str(time.date()))
+
+				fhandle = open(local_dir + filename, 'wb')
+				print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
+				transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
+				fhandle.close()
+				if '226' in transfer_result:
+					print('Transfer complete: ' + local_dir + filename)
+					return True
+				else:
+					print('Transfer failed')
+					return False
+	return False
 
 def disconnect_from_ftp():
 	ftp_client.quit()

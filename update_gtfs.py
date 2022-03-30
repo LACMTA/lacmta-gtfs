@@ -9,6 +9,7 @@ import utils.ftp_helper as ftp_helper
 import utils.date_helper as date_helper
 import utils.log_helper as log_helper
 import utils.list_helper as list_helper
+import utils.git_helper as git_helper
 
 RUNNING_LOCALLY = None
 FTP_SERVER = None
@@ -52,7 +53,7 @@ REMOTE_CURRENT_PATH = 'https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_
 OUTPUT_DIR = ROOT_DIR + '/data/'
 
 INPUT_DIR = ROOT_DIR + '/inputs/'
-INPUT_WEEKLY_DIR = INPUT_DIR + '/weekly/'
+INPUT_WEEKLY_DIR = INPUT_DIR + 'weekly/'
 
 def push_to_github():
 	os.system('git pull')
@@ -145,25 +146,26 @@ def update_rss():
 def main():
 	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
 		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
-			weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+			print('success')
+			# weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
 			
-			date_range = list_helper.get_date_range(weekly_data)
+			# date_range = list_helper.get_date_range(weekly_data)
 
-			express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			express_data = list_helper.get_in_date_range(express_data, date_range)
+			# express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+			# express_data = list_helper.get_in_date_range(express_data, date_range)
 
-			weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
+			# weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
 			
-			current_data = list_helper.get_url_as_list(REMOTE_CURRENT_PATH)
-			current_data = list_helper.remove_in_date_range(current_data, date_range)
+			# current_data = list_helper.get_url_as_list(REMOTE_CURRENT_PATH)
+			# current_data = list_helper.remove_in_date_range(current_data, date_range)
 			
-			result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
-			list_helper.write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
+			# result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
+			# list_helper.write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
 
-			# push_to_github()
-			push_to_gitlab()
-			update_rss()
-		
+			# push_to_gitlab()
+			# update_rss()
+		else:
+			print('failure')
 		ftp_helper.disconnect_from_ftp()
 	
 main()

@@ -22,13 +22,17 @@ Diagram for the automation running in this repository:
 
 ![GTFS Bus auto-update workflow](gtfs-bus-auto-update-workflow.png)
 
+0. Get the `[FTP] calendar_dates.txt` file from the FTP server.  If that is successful, continue:
 1. Compare the `[weekly-updated-service] calendar.txt` file to the `[master] calendar.txt` file to determine if a shakeup has occured within the past week.
     1. If a shakeup has occured, use the `[master] calendar_dates.txt` as our `starting calendar_dates.txt`. Remove all content from the `[master] calendar_dates/` folder.
     2. If no shakeup has occured, use the `[weekly-updated-service] calendar_dates.txt` as our `starting calendar_dates.txt`.
 2. Remove entries from the `starting calendar_dates.txt` that fall within the `current date range`.
-3. Get the `[FTP] calendar_dates.txt` file and determine the `current date range`.
+3. Determine the `current date range` from the `[FTP] calendar_dates.txt` file.
 4. Add the `[FTP] calendar_dates.txt` file to the `[master] calendar_dates/` folder using the format `yy-mm-dd/calendar_dates.txt` and also add it to the `starting calendar_dates.txt`.
 5. Extract the entries from `[lacmta-gtfs] dse-sofi-express.csv` that fall in the `current date range` and add it to the `starting calendar_dates.txt`.
 6. Generate a new zip file of the `[weekly-updated-service]` branch, commit, and push all the changes to GitLab.
 7. Update the RSS feed to trigger an automated ActiveCampaign email.
 
+The `[weekly-updated-service]` branch needs to be locally cloned so that changes made can be pushed back to GitLab.
+
+The `[master]` branch also needs to be locally cloned so that the `calendar_dates/` folder can be updated.
