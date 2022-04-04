@@ -3,9 +3,9 @@ import subprocess
 
 def commit_and_push(message, directory):
 	try:
-		subprocess.run('git -C ' + directory + ' pull', shell=True)
-		subprocess.run('git -C ' + directory + ' commit -am "' + message + '"', shell=True)
-		subprocess.run('git -C ' + directory + ' push', shell=True)
+		subprocess.run('git -C ' + directory + ' pull', shell=True, capture_output=True)
+		subprocess.run('git -C ' + directory + ' commit -am "' + message + '"', shell=True, capture_output=True)
+		subprocess.run('git -C ' + directory + ' push', shell=True, capture_output=True)
 		print('Committed and pushed: ' + directory)
 	except:
 		print('Error committing and pushing: ' + directory)
@@ -32,15 +32,15 @@ def clone_branch(url, branch, destination):
 
 		# we only need a single branch at depth 1 (implies --single-branch)
 		# subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-		subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True)
+		subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True, capture_output=True)
 
 		# configure git
 		subprocess.run('git -C ' + destination + ' config user.email "kinn@metro.net"', shell=True)
 		subprocess.run('git -C ' + destination + ' config user.name "Nina Kin"', shell=True)
 		
-		print('Branch: ' + branch + ' cloned from ' + url + ' to ' + destination)
+		print('Branch "' + branch + '" cloned from ' + url + ' to ' + destination)
 	except:
-		print('Error cloning branch: ' + branch + ' from ' + url + ' to ' + destination)
+		print('Error cloning branch "' + branch + '" from ' + url + ' to ' + destination)
 
 	return
 
