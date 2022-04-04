@@ -89,7 +89,7 @@ def add_calendar_dates_to_master():
 	folder_name = str(date)
 	new_folder = 'temp/master/gtfs_bus/calendar_dates/' + folder_name
 	# copy calendar_dates.txt to master
-	subprocess.run('mkdir ' + new_folder, shell=True)
+	subprocess.run('mkdir -p ' + new_folder, shell=True)
 	subprocess.run('cp ' + 'temp/weekly/calendar_dates.txt ' + new_folder, shell=True)
 	return
 
@@ -126,7 +126,7 @@ def main():
 				# clear out `calendar_dates/` folder contents from [master] branch
 				calendar_dates_folder = 'temp/master/gtfs_bus/calendar_dates'
 				subprocess.run('if [ -d ' + calendar_dates_folder + ' ]; then rm -rf ' + calendar_dates_folder + '; fi', shell=True)
-				subprocess.run('mkdir ' + calendar_dates_folder, shell=True)
+				subprocess.run('mkdir -p ' + calendar_dates_folder, shell=True)
 
 				starting_calendar_dates_file = 'temp/master/gtfs_bus/calendar_dates.txt'
 			else:

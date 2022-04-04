@@ -35,7 +35,7 @@ def get_file_from_ftp(file, local_dir):
 				print("Found file modified today: " + str(time.date()))
 
 				subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
-				subprocess.run('mkdir ' + local_dir, shell=True)
+				subprocess.run('mkdir -p ' + local_dir, shell=True)
 
 				fhandle = open(local_dir + filename, 'wb')
 				print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
