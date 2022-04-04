@@ -158,6 +158,6 @@ def main():
 		# else:
 		# 	print('FTP file - failure')
 		
-		ftp_helper.disconnect_from_ftp()
+		# ftp_helper.disconnect_from_ftp()
 	
 main()
