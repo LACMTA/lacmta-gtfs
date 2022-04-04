@@ -114,10 +114,10 @@ def main():
 			# cloning takes a while to run because we have some large files.
 
 			# clone [master] branch
-			# git_helper.clone_branch(gitlab_url, 'master','temp/master')
+			git_helper.clone_branch(gitlab_url, 'master','temp/master')
 
 			# clone [weekly-updated-service] branch
-			# git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
+			git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
 
 			# check if a new calendar_dates.txt has been released as part of the base GTFS and set the starting calendar_dates.txt file accordingly
 			if has_new_calendar_dates(CALENDAR_DATES_SHAKEUP_LOCAL, CALENDAR_DATES_CURRENT_LOCAL):
@@ -157,6 +157,7 @@ def main():
 			# update_rss()
 		# else:
 		# 	print('FTP file - failure')
-		# ftp_helper.disconnect_from_ftp()
+		
+		ftp_helper.disconnect_from_ftp()
 	
 main()
