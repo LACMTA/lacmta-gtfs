@@ -50,6 +50,7 @@ jobs:
         pip install pytz
         pip install PyRSS2Gen
         pip install requests
+        pip install python-dateutil
     - name: Connect to the remote FTP
       run: python update_gtfs.py 
       env:
