@@ -13,25 +13,34 @@ def commit_and_push(message, directory):
 	return
 
 def reset_temp_folder(directory):
-	# can set to `output =`
-	# subprocess.run('if [ -d ' + directory + ' ]; then rm -rf ' + directory + '; fi', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	subprocess.run('if [ -d ' + directory + ' ]; then rm -rf ' + directory + '; fi', shell=True)
-	
-	# subprocess.run('mkdir ' + directory, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	subprocess.run('mkdir ' + directory, shell=True)
+	try:
+		# can set to `output =`
+		# subprocess.run('if [ -d ' + directory + ' ]; then rm -rf ' + directory + '; fi', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		subprocess.run('if [ -d ' + directory + ' ]; then rm -rf ' + directory + '; fi', shell=True)
+		
+		# subprocess.run('mkdir ' + directory, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		subprocess.run('mkdir -p ' + directory, shell=True)
 
+		print('Reset temp folder: ' + directory)
+	except:
+		print('Temp folder: ' + directory + ' couldn\'t be reset')
 	return
 
 def clone_branch(url, branch, destination):
-	reset_temp_folder(destination)
+	try:
+		reset_temp_folder(destination)
 
-	# we only need a single branch at depth 1 (implies --single-branch)
-	# subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True)
+		# we only need a single branch at depth 1 (implies --single-branch)
+		# subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True)
 
-	# configure git
-	subprocess.run('git -C ' + destination + ' config user.email "kinn@metro.net"', shell=True)
-	subprocess.run('git -C ' + destination + ' config user.name "Nina Kin"', shell=True)
+		# configure git
+		subprocess.run('git -C ' + destination + ' config user.email "kinn@metro.net"', shell=True)
+		subprocess.run('git -C ' + destination + ' config user.name "Nina Kin"', shell=True)
+		
+		print('Branch: ' + branch + ' cloned from ' + url + ' to ' + destination)
+	except:
+		print('Error cloning branch: ' + branch + ' from ' + url + ' to ' + destination)
 
 	return
 

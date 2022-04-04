@@ -104,10 +104,9 @@ def zip_gtfs(directory):
 
 def main():
 	# check if there is a new calendar_dates.txt file on the FTP server
-	# if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
-	# 	if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
+		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
 			print('FTP file - success')
-
 			gitlab_url = 'https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/LACMTA/gtfs_bus.git'
 			starting_calendar_dates_file = ''
 
@@ -127,11 +126,15 @@ def main():
 				calendar_dates_folder = 'temp/master/gtfs_bus/calendar_dates'
 				subprocess.run('if [ -d ' + calendar_dates_folder + ' ]; then rm -rf ' + calendar_dates_folder + '; fi', shell=True)
 				subprocess.run('mkdir -p ' + calendar_dates_folder, shell=True)
+				print('New master branch folder created')
 
 				starting_calendar_dates_file = 'temp/master/gtfs_bus/calendar_dates.txt'
+				print('Starting folder set to master branch')
 			else:
 				print('No new base calendar_dates.txt exists')
 				starting_calendar_dates_file = 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt'
+				print('Starting folder set to weekly-updated-service branch')
+				
 
 			add_calendar_dates_to_master()
 			weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
@@ -155,9 +158,9 @@ def main():
 			# TODO: commit and push master branch too
 
 			# update_rss()
-		# else:
-		# 	print('FTP file - failure')
+		else:
+			print('FTP file - failure')
 		
-		# ftp_helper.disconnect_from_ftp()
+		ftp_helper.disconnect_from_ftp()
 	
 main()
