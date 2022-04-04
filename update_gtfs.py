@@ -4,6 +4,7 @@ import pytz
 import PyRSS2Gen
 
 import subprocess
+import filecmp
 
 import utils.ftp_helper as ftp_helper
 import utils.date_helper as date_helper
@@ -38,8 +39,11 @@ if RUNNING_LOCALLY:
 
 log = log_helper.build_log(True)
 
+# use local files for file comparison
+CALENDAR_DATES_CURRENT_LOCAL = "temp/weekly-updated-service/gtfs_bus/calendar_dates.txt"
+CALENDAR_DATES_SHAKEUP_LOCAL = "temp/master/gtfs_bus/calendar_dates.txt"
+
 CALENDAR_DATES_CURRENT = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates/calendar_dates.txt"
-#CALENDAR_DATES_SHAKEUP = "https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_dates.txt"
 CALENDAR_DATES_EXPRESS = "../inputs/dse-sofi-express.csv"
 CALENDAR_DATES_CURRENT_NEW = "current/calendar_dates.txt"
 
@@ -53,76 +57,8 @@ REMOTE_CURRENT_PATH = 'https://gitlab.com/LACMTA/gtfs_bus/-/raw/master/calendar_
 OUTPUT_DIR = ROOT_DIR + '/data/'
 
 INPUT_DIR = ROOT_DIR + '/inputs/'
-INPUT_WEEKLY_DIR = INPUT_DIR + 'weekly/'
+INPUT_WEEKLY_DIR = 'temp/weekly/'
 
-def push_to_github():
-	os.system('git pull')
-	os.system('git add .')
-	os.system('git commit -m "Auto update"')
-	os.system('git push')
-	return
-
-def push_to_gitlab():
-	log('Start push to GitLab')
-	scratch_dir= 'scratch'
-
-	# Test repository:
-	# repo_dir = 'token-test'
-	# target_gitlab = 'LACMTA/token-test.git'
-
-	# GTFS Bus repository:
-	repo_dir = 'gtfs_bus'
-	target_gitlab = 'LACMTA/gtfs_bus.git'
-
-	target_dir = scratch_dir + '/' + repo_dir
-
-	output = subprocess.run('if [ -d ' + scratch_dir + ' ]; then rm -rf ' + scratch_dir + '; fi', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Clean up scratch directory')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-	
-	output = subprocess.run('mkdir ' + scratch_dir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Created scratch directory')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-	
-	output = subprocess.run('mkdir ' + target_dir, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Create target directory: ' + target_dir)
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-	
-	output = subprocess.run('git -C ' + scratch_dir + ' clone https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/' + target_gitlab, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Clone target repository: ' + target_gitlab)
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-
-	output = subprocess.run('git -C ' + target_dir + ' config user.email "kinn@metro.net"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Configure user.email')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-
-	output = subprocess.run('git -C ' + target_dir + ' config user.name "Nina Kin"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Configure user.name')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-	
-	output = subprocess.run('cp data/calendar_dates.txt ' + target_dir + '/calendar_dates/calendar_dates.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Copy calendar_dates.txt')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-
-	output = subprocess.run('git -C ' + target_dir + ' commit -am "Auto update calendar_dates"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Commit calendar_dates.txt')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-
-	output = subprocess.run('git -C ' + target_dir + ' push', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	log('Push calendar_dates.txt')
-	log('Output: ' + output.stdout)
-	log('Errors: ' + output.stderr)
-	
-	log('End push to GitLab')
-	return
 
 def update_rss():
 	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
@@ -143,29 +79,84 @@ def update_rss():
 	rss.write_xml(open(OUTPUT_DIR + "rss.xml", "w"))
 	return
 
+def has_new_calendar_dates(f1, f2):
+	# may need a better way to do this
+	# filecmp.cmp() returns TRUE if the files are the same (no shakeup)
+	return not filecmp.cmp(f1, f2)
+
+def add_calendar_dates_to_master():
+	date = datetime.date.today()
+	folder_name = str(date)
+	new_folder = 'temp/master/gtfs_bus/calendar_dates/' + folder_name
+	# copy calendar_dates.txt to master
+	subprocess.run('mkdir ' + new_folder, shell=True)
+	subprocess.run('cp ' + 'temp/weekly/calendar_dates.txt ' + new_folder, shell=True)
+	return
+
+def zip_gtfs(directory):
+	try:
+		subprocess.run('rm ' + directory + '*zip', shell=True)
+		subprocess.run('cd ' + directory + '; zip -r gtfs_bus *.txt', shell=True)
+		print('GTFS files zipped in: ' + directory)
+	except:
+		print('failed to zip GTFS files')
+	return
+
 def main():
-	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
-		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
-			print('success')
-			# weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
-			
-			# date_range = list_helper.get_date_range(weekly_data)
+	# check if there is a new calendar_dates.txt file on the FTP server
+	# if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
+	# 	if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+			print('FTP file - success')
 
-			# express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			# express_data = list_helper.get_in_date_range(express_data, date_range)
+			gitlab_url = 'https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/LACMTA/gtfs_bus.git'
+			starting_calendar_dates_file = ''
 
-			# weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
-			
-			# current_data = list_helper.get_url_as_list(REMOTE_CURRENT_PATH)
-			# current_data = list_helper.remove_in_date_range(current_data, date_range)
-			
-			# result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
-			# list_helper.write_data_to_file(result, OUTPUT_DIR + CALENDAR_DATES_FILENAME)
+			# cloning takes a while to run because we have some large files.
 
-			# push_to_gitlab()
+			# clone [master] branch
+			# git_helper.clone_branch(gitlab_url, 'master','temp/master')
+
+			# clone [weekly-updated-service] branch
+			# git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
+
+			# check if a new calendar_dates.txt has been released as part of the base GTFS and set the starting calendar_dates.txt file accordingly
+			if has_new_calendar_dates(CALENDAR_DATES_SHAKEUP_LOCAL, CALENDAR_DATES_CURRENT_LOCAL):
+				print('New base calendar_dates.txt exists')
+
+				# clear out `calendar_dates/` folder contents from [master] branch
+				calendar_dates_folder = 'temp/master/gtfs_bus/calendar_dates'
+				subprocess.run('if [ -d ' + calendar_dates_folder + ' ]; then rm -rf ' + calendar_dates_folder + '; fi', shell=True)
+				subprocess.run('mkdir ' + calendar_dates_folder, shell=True)
+
+				starting_calendar_dates_file = 'temp/master/gtfs_bus/calendar_dates.txt'
+			else:
+				print('No new base calendar_dates.txt exists')
+				starting_calendar_dates_file = 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt'
+
+			add_calendar_dates_to_master()
+			weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
+			date_range = list_helper.get_date_range(weekly_data)
+
+			express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+			express_data = list_helper.get_in_date_range(express_data, date_range)
+
+			weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
+			
+			current_data = list_helper.get_file_as_list(starting_calendar_dates_file)
+			current_data = list_helper.remove_in_date_range(current_data, date_range)
+			
+			result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
+			result = list_helper.sort_list(result)
+			list_helper.write_data_to_file(result, 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt')
+			
+			zip_gtfs('temp/weekly-updated-service/gtfs_bus/')
+
+			git_helper.commit_and_push('weekly update', 'temp/weekly-updated-service/gtfs_bus/')
+			# TODO: commit and push master branch too
+
 			# update_rss()
-		else:
-			print('failure')
-		ftp_helper.disconnect_from_ftp()
+		# else:
+		# 	print('FTP file - failure')
+		# ftp_helper.disconnect_from_ftp()
 	
 main()

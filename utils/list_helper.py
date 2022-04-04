@@ -84,3 +84,12 @@ def write_data_to_file(list_data, filepath):
 		writer.writerows(list_data)
 	log("Wrote " + filepath)
 	return
+
+def sort_list(list_data, skip_header=True):
+	
+	if skip_header:
+		list_data[1:] = sorted(list_data[1:], key=lambda x: x[1])
+	else:
+		list_data = sorted(list_data, key=lambda x: x[1])
+		
+	return list_data

@@ -8,20 +8,26 @@
 
 name: Update Calendar Dates
 
+
+# calendar_dates.txt is auto-generated at 12am every Wednesday morning and should be on the FTP server by 12:30am
+
+# '0 11 * * WED' schedules the GitHub Action to run at 11:00 UTC (3am PTC) every Wednesday morning
+# use '*/5 * * * *' for testing (GitHub Actions can be scheduled to run every 5 minutes)
+# switch from scheduled to manual runs
+
+# Uncomment below for auto runs:
+# on:
+#   schedule:
+#     - cron: '0 11 * * WED' 
+
+# Uncomment below for manual runs:
 on:
-  # calendar_txt is auto-generated at 12am every Wednesday morning and should finish by 12:30am
-  # '0 11 * * WED' schedules the GitHub Action to run at 11:00 UTC (3am PTC) every Wednesday
-  # use '*/5 * * * *' for testing (GitHub Actions can be scheduled to run every 5 minutes)
-  # Uncomment below for auto runs:
-  schedule:
-    - cron: '0 11 * * WED' 
-  push:
-    branches: 
-      - main
+  workflow_dispatch
 
-  # Uncomment below for manual runs:
-  # workflow_dispatch
-
+  # not sure if this section is actually needed:
+  # push:
+  #   branches: 
+  #     - main
 
 jobs:
   deploy:
@@ -41,7 +47,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # pip install build
         pip install pytz
         pip install PyRSS2Gen
         pip install requests
