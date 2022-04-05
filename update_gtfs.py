@@ -89,14 +89,26 @@ def add_calendar_dates_to_master():
 	folder_name = str(date)
 	new_folder = 'temp/master/gtfs_bus/calendar_dates/' + folder_name
 	# copy calendar_dates.txt to master
-	subprocess.run('mkdir -p ' + new_folder, shell=True)
-	subprocess.run('cp ' + 'temp/weekly/calendar_dates.txt ' + new_folder, shell=True)
+	result = subprocess.run('mkdir -p ' + new_folder, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	print('Output: ' + result.stdout)
+	print('Errors: ' + result.stderr)
+
+	result = subprocess.run('cp ' + 'temp/weekly/calendar_dates.txt ' + new_folder, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	print('Output: ' + result.stdout)
+	print('Errors: ' + result.stderr)
+
 	return
 
 def zip_gtfs(directory):
 	try:
-		subprocess.run('rm ' + directory + '*zip', shell=True)
-		subprocess.run('cd ' + directory + '; zip -r gtfs_bus *.txt', shell=True)
+		result = subprocess.run('rm ' + directory + '*zip', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+
+		result = subprocess.run('cd ' + directory + '; zip -r gtfs_bus *.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+
 		print('GTFS files zipped in: ' + directory)
 	except:
 		print('failed to zip GTFS files')
