@@ -154,7 +154,7 @@ def main():
 			
 			zip_gtfs('temp/weekly-updated-service/gtfs_bus/')
 
-			git_helper.commit_and_push(str(datetime.date.today()) + ' weekly update', 'temp/weekly-updated-service/gtfs_bus/')
+			git_helper.commit_and_push(str(datetime.datetime.now()) + ' weekly update', 'temp/weekly-updated-service/gtfs_bus/')
 			# commit and push master branch too
 			# git_helper.commit_and_push(str(datetime.date.today()) + ' weekly update', 'temp/master/gtfs_bus/')
 
