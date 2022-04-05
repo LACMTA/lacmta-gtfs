@@ -5,8 +5,10 @@ def commit_and_push(message, directory):
 	try:
 		subprocess.run('git -C ' + directory + ' pull  --progress', shell=True)
 		subprocess.run('git -C ' + directory + ' commit -am "' + message + '"', shell=True)
-		subprocess.run('git -C ' + directory + ' push  --progress', shell=True)
+		result = subprocess.run('git -C ' + directory + ' push  --progress', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Committed and pushed: ' + directory)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
 	except:
 		print('Error committing and pushing: ' + directory)
 		return
