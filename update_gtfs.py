@@ -89,10 +89,13 @@ def add_calendar_dates_to_master():
 	folder_name = str(date)
 	new_folder = 'temp/master/gtfs_bus/calendar_dates/' + folder_name
 	# copy calendar_dates.txt to master
+
+	print('--- Making folder: ' + new_folder)
 	result = subprocess.run('mkdir -p ' + new_folder, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 	print('Output: ' + result.stdout)
 	print('Errors: ' + result.stderr)
 
+	print('--- Copying calendar_dates.txt to temp folder')
 	result = subprocess.run('cp ' + 'temp/weekly/calendar_dates.txt ' + new_folder, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 	print('Output: ' + result.stdout)
 	print('Errors: ' + result.stderr)
@@ -101,10 +104,12 @@ def add_calendar_dates_to_master():
 
 def zip_gtfs(directory):
 	try:
+		print('--- Removing zip file')
 		result = subprocess.run('rm ' + directory + '*zip', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
 
+		print('--- Zipping ' + directory)
 		result = subprocess.run('cd ' + directory + '; zip -r gtfs_bus *.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
