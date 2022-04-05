@@ -9,6 +9,17 @@ def commit_and_push(message, directory):
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
 		
+		# configure git
+		print('--- git config email')
+		result = subprocess.run('git -C ' + destination + ' config user.email "kinn@metro.net"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+
+		print('--- git config name')
+		result = subprocess.run('git -C ' + destination + ' config user.name "Nina Kin"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+
 		print('--- git commit')
 		result = subprocess.run('git -C ' + directory + ' commit -am "' + message + '"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
@@ -54,17 +65,6 @@ def clone_branch(url, branch, destination):
 
 		print('--- git clone + ' + url)
 		result = subprocess.run('git -C ' + destination + ' clone --depth 1 --branch ' + branch + ' ' + url, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-		print('Output: ' + result.stdout)
-		print('Errors: ' + result.stderr)
-
-		# configure git
-		print('--- git config email')
-		result = subprocess.run('git -C ' + destination + ' config user.email "kinn@metro.net"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-		print('Output: ' + result.stdout)
-		print('Errors: ' + result.stderr)
-
-		print('--- git config name')
-		result = subprocess.run('git -C ' + destination + ' config user.name "Nina Kin"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
 		
