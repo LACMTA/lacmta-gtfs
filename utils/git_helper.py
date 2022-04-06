@@ -20,6 +20,11 @@ def commit_and_push(message, directory):
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
 
+		print('--- git add')
+		result = subprocess.run('git -C ' + directory + ' add .', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+
 		print('--- git commit')
 		result = subprocess.run('git -C ' + directory + ' commit -am "' + message + '"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
