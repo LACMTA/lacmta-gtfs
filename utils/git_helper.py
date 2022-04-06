@@ -11,7 +11,7 @@ def commit_and_push(message, directory):
 		
 		# configure git
 		print('--- git config email')
-		result = subprocess.run('git -C ' + directory + ' config user.email "kinn@metro.net"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		result = subprocess.run('git -C ' + directory + ' config user.email "matikin9@gmail.com"', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 		print('Output: ' + result.stdout)
 		print('Errors: ' + result.stderr)
 

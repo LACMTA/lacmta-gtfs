@@ -30,26 +30,28 @@ def get_file_from_ftp(file, local_dir):
 		if filename == file:
 			timestamp = ftp_client.voidcmd("MDTM " + filename)[4:].strip()
 			time = parser.parse(timestamp)
+			print("FTP file date: " + str(time.date()))
+			print("Current date: " + str(datetime.date.today()))
 
-			# COMMENTED FOR DEBUGGING PURPOSES
-			# if(time.date() == datetime.date.today()):
+			# Only download the file if the modified date is today.
+			if(time.date() == datetime.date.today()):
 
 			# RE-INDENT WHEN DONE
-			print("Found file modified today: " + str(time.date()))
+				print("Found file modified today: " + str(time.date()))
 
-			subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
-			subprocess.run('mkdir -p ' + local_dir, shell=True)
+				subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
+				subprocess.run('mkdir -p ' + local_dir, shell=True)
 
-			fhandle = open(local_dir + filename, 'wb')
-			print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
-			transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
-			fhandle.close()
-			if '226' in transfer_result:
-				print('Transfer complete: ' + local_dir + filename)
-				return True
-			else:
-				print('Transfer failed')
-				return False
+				fhandle = open(local_dir + filename, 'wb')
+				print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
+				transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
+				fhandle.close()
+				if '226' in transfer_result:
+					print('Transfer complete: ' + local_dir + filename)
+					return True
+				else:
+					print('Transfer failed')
+					return False
 	return False
 
 def disconnect_from_ftp():
