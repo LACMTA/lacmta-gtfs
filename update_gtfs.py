@@ -139,13 +139,11 @@ def main():
 
 			# cloning takes a while to run because we have some large files.
 
-			# TEMP COMMENT
 			# clone [master] branch
-			# git_helper.clone_branch(gitlab_url, 'master','temp/master')
+			git_helper.clone_branch(gitlab_url, 'master','temp/master')
 
-			# TEMP COMMENT
 			# clone [weekly-updated-service] branch
-			# git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
+			git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
 
 			# copy the GTFS files from the [master] branch into the [weekly-updated-service] branch
 			# need a way to recognize when to completely replace calendar_dates.txt vs using the existing one from the [weekly-updated-service] branch
