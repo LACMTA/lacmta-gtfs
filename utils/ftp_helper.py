@@ -25,7 +25,7 @@ def connect_to_ftp(remote_dir, server, user, pw):
 		return False
 	#ftp.retrlines("LIST")
 
-def get_file_from_ftp(file, local_dir):
+def get_file_from_ftp(file, local_dir, match_date):
 	for filename in ftp_client.nlst(file): # Loop - looking for matching files
 		if filename == file:
 			timestamp = ftp_client.voidcmd("MDTM " + filename)[4:].strip()
@@ -34,7 +34,7 @@ def get_file_from_ftp(file, local_dir):
 			print("Current date: " + str(datetime.date.today()))
 
 			# Only download the file if the modified date is today.
-			if(time.date() == datetime.date.today()):
+			if(time.date() == match_date.date()):
 
 			# RE-INDENT WHEN DONE
 				print("Found file modified today: " + str(time.date()))
@@ -52,6 +52,10 @@ def get_file_from_ftp(file, local_dir):
 				else:
 					print('Transfer failed')
 					return False
+			else:
+				print("File modified " + str(time.date()) + " is not today's date: " + str(match_date.date()))
+		else:
+			print("File " + filename + " does not match " + file)
 	return False
 
 def disconnect_from_ftp():
