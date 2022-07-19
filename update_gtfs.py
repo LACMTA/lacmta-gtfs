@@ -59,8 +59,11 @@ OUTPUT_DIR = ROOT_DIR + '/data/'
 INPUT_DIR = ROOT_DIR + '/inputs/'
 INPUT_WEEKLY_DIR = 'temp/weekly/'
 
+# change this to download the FTP file even if it doesn't match today's date
+# MATCHING_DATE = datetime.date.today()
+MATCHING_DATE = datetime.datetime(2022, 7, 6)
 
-def update_rss():
+def update_rss(title, link, description):
 	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
 
 	rss = PyRSS2Gen.RSS2(
@@ -70,9 +73,9 @@ def update_rss():
 		lastBuildDate = datetime.datetime.now(pytz.timezone('US/Pacific')),
 		items = [
 			PyRSS2Gen.RSSItem(
-				title = "Weekly calendar_dates.txt update",
-				link = "https://gitlab.com/LACMTA/gtfs_bus",
-				description = "The weekly calendar_dates.txt file has been updated.",
+				title = title,
+				link = link,
+				description = description,
 				pubDate = datetime.datetime.now(pytz.timezone('US/Pacific'))
 			)])
 
@@ -83,6 +86,13 @@ def has_new_calendar_dates(f1, f2):
 	# may need a better way to do this
 	# filecmp.cmp() returns TRUE if the files are the same (no shakeup)
 	return not filecmp.cmp(f1, f2)
+
+def copy_master_to_weekly_updated_service_branch():
+	print('--- Copying master to weekly-updated-service branch')
+	result = subprocess.run('cp -r temp/master/gtfs_bus/*.txt temp/weekly-updated-service/gtfs_bus/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	print('Output: ' + result.stdout)
+	print('Errors: ' + result.stderr)
+	return
 
 def add_calendar_dates_to_master():
 	date = datetime.date.today()
@@ -122,7 +132,7 @@ def zip_gtfs(directory):
 def main():
 	# check if there is a new calendar_dates.txt file on the FTP server
 	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
-		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
+		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR, MATCHING_DATE):
 			print('FTP file - success')
 			gitlab_url = 'https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/LACMTA/gtfs_bus.git'
 			starting_calendar_dates_file = ''
@@ -135,35 +145,56 @@ def main():
 			# clone [weekly-updated-service] branch
 			git_helper.clone_branch(gitlab_url, 'weekly-updated-service','temp/weekly-updated-service')
 
+			# copy the GTFS files from the [master] branch into the [weekly-updated-service] branch
+			# need a way to recognize when to completely replace calendar_dates.txt vs using the existing one from the [weekly-updated-service] branch
+
+			copy_master_to_weekly_updated_service_branch()
+			starting_calendar_dates_file = 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt'
+
+			# OLD FAULTY IMPLEMENTATION:
 			# check if a new calendar_dates.txt has been released as part of the base GTFS and set the starting calendar_dates.txt file accordingly
-			if has_new_calendar_dates(CALENDAR_DATES_SHAKEUP_LOCAL, CALENDAR_DATES_CURRENT_LOCAL):
-				print('New base calendar_dates.txt exists')
+			# if has_new_calendar_dates(CALENDAR_DATES_SHAKEUP_LOCAL, CALENDAR_DATES_CURRENT_LOCAL):
+			# 	print('New base calendar_dates.txt exists')
 
-				# clear out `calendar_dates/` folder contents from [master] branch
-				calendar_dates_folder = 'temp/master/gtfs_bus/calendar_dates'
-				subprocess.run('if [ -d ' + calendar_dates_folder + ' ]; then rm -rf ' + calendar_dates_folder + '; fi', shell=True)
-				subprocess.run('mkdir -p ' + calendar_dates_folder, shell=True)
-				print('New master branch folder created')
+			# 	# clear out `calendar_dates/` folder contents from [master] branch
+			# 	calendar_dates_folder = 'temp/master/gtfs_bus/calendar_dates'
+			# 	subprocess.run('if [ -d ' + calendar_dates_folder + ' ]; then rm -rf ' + calendar_dates_folder + '; fi', shell=True)
+			# 	# subprocess.run('mkdir -p ' + calendar_dates_folder, shell=True)
+			# 	# print('New master branch folder created')
 
-				starting_calendar_dates_file = 'temp/master/gtfs_bus/calendar_dates.txt'
-				print('Starting folder set to master branch')
-			else:
-				print('No new base calendar_dates.txt exists')
-				starting_calendar_dates_file = 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt'
-				print('Starting folder set to weekly-updated-service branch')
+			# 	starting_calendar_dates_file = 'temp/master/gtfs_bus/calendar_dates.txt'
+			# 	# print('Starting folder set to master branch')
+			# else:
+			# 	print('No new base calendar_dates.txt exists')
+			# 	starting_calendar_dates_file = 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt'
+			# 	print('Starting folder set to weekly-updated-service branch')
 				
 
 			add_calendar_dates_to_master()
 			weekly_data = list_helper.get_file_as_list(INPUT_WEEKLY_DIR + CALENDAR_DATES_FILENAME)
-			date_range = list_helper.get_date_range(weekly_data)
+			current_data = list_helper.get_file_as_list(starting_calendar_dates_file)
 
-			express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			express_data = list_helper.get_in_date_range(express_data, date_range)
+			# check if the new calendar_dates.txt file is empty
+			if len(weekly_data) <= 1:
+				print('New calendar_dates.txt file is empty')
+
+				express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+				print('Express entries: ' + str(len(express_data)))
+			else:
+				print('New calendar_dates.txt file is not empty')
+				print('Weekly entries: ' + str(len(weekly_data)))
+				
+				# don't need this if we just use the entire express_data file
+				# date_range = list_helper.get_date_range(weekly_data)
+
+				express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+
+				# don't need this if we just use the entire express_data file
+				# express_data = list_helper.get_in_date_range(express_data, date_range)
+
+				current_data = list_helper.remove_in_date_range(current_data, date_range)
 
 			weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
-			
-			current_data = list_helper.get_file_as_list(starting_calendar_dates_file)
-			current_data = list_helper.remove_in_date_range(current_data, date_range)
 			
 			result = list_helper.combine_list_data(current_data, weekly_express_combined_data)
 			result = list_helper.sort_list(result)
@@ -172,10 +203,11 @@ def main():
 			zip_gtfs('temp/weekly-updated-service/gtfs_bus/')
 
 			git_helper.commit_and_push(str(datetime.datetime.now()) + ' weekly update', 'temp/weekly-updated-service/gtfs_bus/')
-			# commit and push master branch too
-			git_helper.commit_and_push(str(datetime.date.today()) + ' weekly update', 'temp/master/gtfs_bus/')
+			
+			# Not sure if we actually want to keep udpating the master branch
+			# git_helper.commit_and_push(str(datetime.date.today()) + ' weekly update', 'temp/master/gtfs_bus/')
 
-			update_rss()
+			update_rss("Weekly Updated GTFS", "https://gitlab.com/LACMTA/gtfs_bus/-/raw/weekly-updated-service/gtfs_bus.zip", "A new GTFS zip file for LA Metro's bus service has been uploaded with this week's new calendar_dates.txt file. The calendar_dates.txt file contains updated service for the upcoming 2 weeks.")
 		else:
 			print('FTP file - failure')
 		
