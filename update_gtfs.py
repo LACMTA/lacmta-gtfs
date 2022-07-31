@@ -59,10 +59,6 @@ OUTPUT_DIR = ROOT_DIR + '/data/'
 INPUT_DIR = ROOT_DIR + '/inputs/'
 INPUT_WEEKLY_DIR = 'temp/weekly/'
 
-# change this to download the FTP file even if it doesn't match today's date
-# MATCHING_DATE = datetime.date.today()
-MATCHING_DATE = datetime.datetime(2022, 7, 6)
-
 def update_rss(title, link, description):
 	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
 
@@ -132,7 +128,7 @@ def zip_gtfs(directory):
 def main():
 	# check if there is a new calendar_dates.txt file on the FTP server
 	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
-		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR, MATCHING_DATE):
+		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, INPUT_WEEKLY_DIR):
 			print('FTP file - success')
 			gitlab_url = 'https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/LACMTA/gtfs_bus.git'
 			starting_calendar_dates_file = ''
@@ -192,7 +188,7 @@ def main():
 				# don't need this if we just use the entire express_data file
 				# express_data = list_helper.get_in_date_range(express_data, date_range)
 
-				current_data = list_helper.remove_in_date_range(current_data, date_range)
+				# current_data = list_helper.remove_in_date_range(current_data, date_range)
 
 			weekly_express_combined_data = list_helper.combine_list_data(weekly_data, express_data)
 			
