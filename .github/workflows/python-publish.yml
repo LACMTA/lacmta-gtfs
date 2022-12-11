@@ -16,13 +16,13 @@ name: Update Calendar Dates
 # switch from scheduled to manual runs
 
 # Uncomment below for auto runs:
-on:
-  schedule:
-    - cron: '0 11 * * WED' 
+# on:
+#   schedule:
+#     - cron: '0 11 * * WED' 
 
 # Uncomment below for manual runs:
-# on:
-#   workflow_dispatch
+on:
+  workflow_dispatch
 
   # not sure if this section is actually needed:
   # push:
