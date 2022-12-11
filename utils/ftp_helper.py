@@ -35,26 +35,27 @@ def get_file_from_ftp(file, local_dir, match_date=datetime.date.today()):
 			print("match_date: " + str(match_date))
 
 			# Only download the file if the modified date is today.
-			if(time.date() == match_date):
+			# Comment out this line for manual runs and run the code in side the block
+# 			if(time.date() == match_date):
 
 			# RE-INDENT WHEN DONE
-				print("Found file modified: " + str(time.date()))
+			print("Found file modified: " + str(time.date()))
 
-				subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
-				subprocess.run('mkdir -p ' + local_dir, shell=True)
+			subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
+			subprocess.run('mkdir -p ' + local_dir, shell=True)
 
-				fhandle = open(local_dir + filename, 'wb')
-				print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
-				transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
-				fhandle.close()
-				if '226' in transfer_result:
-					print('Transfer complete: ' + local_dir + filename)
-					return True
-				else:
-					print('Transfer failed')
-					return False
+			fhandle = open(local_dir + filename, 'wb')
+			print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
+			transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
+			fhandle.close()
+			if '226' in transfer_result:
+				print('Transfer complete: ' + local_dir + filename)
+				return True
 			else:
-				print("File modified " + str(time.date()) + " is not match_date: " + str(match_date))
+				print('Transfer failed')
+				return False
+# 			else:
+# 				print("File modified " + str(time.date()) + " does not match_date: " + str(match_date))
 		else:
 			print("File " + filename + " does not match " + file)
 	return False
