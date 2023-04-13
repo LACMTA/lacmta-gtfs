@@ -97,3 +97,13 @@ Workflow:
     - If the validation is not successful:
       - Do not update `future-service` branch files
       - Send email notification to administrators
+
+TEST
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
