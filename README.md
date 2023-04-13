@@ -97,7 +97,3 @@ Workflow:
     - If the validation is not successful:
       - Do not update `future-service` branch files
       - Send email notification to administrators
-
-Next Steps:
-- [ ] Review [getzip.py](https://gitlab.com/LACMTA/gtfs_rail/-/blob/master/getzip.py) to understand what kind of processing is done to the Rail GTFS.
-- [ ] Replicate within GitHub.
