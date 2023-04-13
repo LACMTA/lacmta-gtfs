@@ -25,10 +25,10 @@ Bus GTFS processing and Rail GTFS processing looks different.
 
 Options: 
 1. Combined Bus & Rail + Validation Code
-  - One single repository that includes bus GTFS, rail GTFS, separate processing code for each, common code for automating validation and email notifications.
+    - One single repository that includes bus GTFS, rail GTFS, separate processing code for each, common code for automating validation and email notifications.
 2. Separate Bus & Rail + Validation Repo
-  - Separate repositories for bus GTFS + processing and rail GTFS + processing.
-  - Automated validation and email notifications would live in a separate place and would just be triggered by the bus/rail rep os as needed.  This could be a third repository or a GH Action.
+    - Separate repositories for bus GTFS + processing and rail GTFS + processing.
+    - Automated validation and email notifications would live in a separate place and would just be triggered by the bus/rail rep os as needed.  This could be a third repository or a GH Action.
 
 Concerns:
 
