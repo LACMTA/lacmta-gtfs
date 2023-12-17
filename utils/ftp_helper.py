@@ -41,15 +41,17 @@ def get_file_from_ftp(file, local_dir, match_date=datetime.date.today()):
 			# RE-INDENT WHEN DONE
 			print("Found file modified: " + str(time.date()))
 
-			subprocess.run('if [ -d ' + local_dir + ' ]; then rm -rf ' + local_dir + '; fi', shell=True)
-			subprocess.run('mkdir -p ' + local_dir, shell=True)
+			subprocess.run(f'if [ -d {local_dir} ]; then rm -rf {local_dir}; fi', shell=True)
+			subprocess.run(f'mkdir -p {local_dir}', shell=True)
 
-			fhandle = open(local_dir + filename, 'wb')
-			print('Opening remote file: ' + filename) #for comfort sake, shows the file that's being retrieved
-			transfer_result = ftp_client.retrbinary('RETR ' + filename, fhandle.write)
+			filepath = f'{local_dir}/{filename}'
+
+			fhandle = open(filepath, 'wb')
+			print(f'Opening remote file: {filename}') # for comfort sake, shows the file that's being retrieved
+			transfer_result = ftp_client.retrbinary(f'RETR {filename}', fhandle.write)
 			fhandle.close()
 			if '226' in transfer_result:
-				print('Transfer complete: ' + local_dir + filename)
+				print(f'Transfer complete: {filepath}')
 				return True
 			else:
 				print('Transfer failed')
