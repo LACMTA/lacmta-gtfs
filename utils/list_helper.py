@@ -68,14 +68,33 @@ def get_url_as_list(url):
 	return list(csv_response)
 
 def combine_list_data(data_1, data_2):
+	log("Combining data: ")
 	result_data = []
+	
 	for row in data_1:
 		result_data.append(row)
+	log("Added " + str(len(data_1)) + " lines from data_1")
+
 	for row in data_2:
 		# remove header row from data_2 if it exists
 		if (row[1] == 'date'):
 			continue
 		result_data.append(row)
+	log("Added " + str(len(data_2)) + " lines from data_2")
+
+	return result_data
+
+def remove_duplicates(data):
+	log("Removing duplicates")
+	result_data = []
+	
+	for row in data:
+		if row not in result_data:
+			result_data.append(row)
+		else:
+			log("Duplicate found: " + str(row)
+	log("Removed " + str(len(data) - len(result_data)) + " lines")
+	
 	return result_data
 
 def write_data_to_file(list_data, filepath):
