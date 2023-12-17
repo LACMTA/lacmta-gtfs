@@ -127,6 +127,16 @@ def zip_gtfs(directory):
 		print('failed to zip GTFS files')
 	return
 
+def remove_txt_files(directory):
+	try:
+		print('--- Removing txt files from ' + directory)
+		result = subprocess.run('rm ' + directory + '*.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		print('Output: ' + result.stdout)
+		print('Errors: ' + result.stderr)
+	except:
+		print('failed to remove txt files')
+	return
+
 def main():
 	# check if there is a new calendar_dates.txt file on the FTP server
 	if ftp_helper.connect_to_ftp(REMOTE_FTP_PATH, FTP_SERVER, FTP_USER, FTP_PW):
@@ -199,6 +209,8 @@ def main():
 			list_helper.write_data_to_file(result, 'temp/weekly-updated-service/gtfs_bus/calendar_dates.txt')
 			
 			zip_gtfs('temp/weekly-updated-service/gtfs_bus/')
+
+			remove_txt_files('temp/weekly-updated-service/gtfs_bus/')
 
 			git_helper.commit_and_push(str(datetime.datetime.now()) + ' weekly update', 'temp/weekly-updated-service/gtfs_bus/')
 			
