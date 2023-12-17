@@ -19,10 +19,7 @@ name: Update Calendar Dates
 on:
   schedule:
     - cron: '0 11 * * WED' 
-
-# Uncomment below for manual runs:
-# on:
-#   workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   deploy:
