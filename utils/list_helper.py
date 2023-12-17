@@ -92,9 +92,9 @@ def remove_duplicates(data):
 		if row not in result_data:
 			result_data.append(row)
 		else:
-			log("Duplicate found: " + str(row)
+			log("Duplicate found: " + str(row))
 	log("Removed " + str(len(data) - len(result_data)) + " lines")
-	
+
 	return result_data
 
 def write_data_to_file(list_data, filepath):
