@@ -84,6 +84,8 @@ def has_new_calendar_dates(f1, f2):
 	return not filecmp.cmp(f1, f2)
 
 def copy_master_to_weekly_updated_service_branch():
+	print('--- Unzip master branch gtfs_bus.zip file, overwriting existing files')
+	result = subprocess.run('unzip -o temp/master/gtfs_bus/gtfs_bus.zip -d temp/master/gtfs_bus/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)	
 	print('--- Copying master to weekly-updated-service branch')
 	result = subprocess.run('cp -r temp/master/gtfs_bus/*.txt temp/weekly-updated-service/gtfs_bus/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 	print('Output: ' + result.stdout)
