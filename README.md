@@ -1,6 +1,6 @@
 # lacmta-gtfs
 
-View the [workflow](docs/workflow.html).
+View the [workflow](docs/workflow.md).
 
 ## Notes
 
