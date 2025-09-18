@@ -2,6 +2,8 @@
 
 View the [workflow](docs/workflow.html).
 
+You will need the FTP credentials to run `update_gtfs.py`.
+
 ## Notes
 
 ### Express Service
