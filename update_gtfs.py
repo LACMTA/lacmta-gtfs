@@ -82,21 +82,24 @@ def has_new_calendar_dates(f1, f2):
 	# filecmp.cmp() returns TRUE if the files are the same (no shakeup)
 	return not filecmp.cmp(f1, f2)
 
+def print_outputs(results):
+	for result in results:
+		if (result):
+			print(result)
+	return
+
 def copy_master_to_weekly_updated_service():
 	print('--- Unzip master branch gtfs_bus.zip file, overwriting existing files')
-	result = subprocess.run(f'unzip -o {TEMP_DIR_MASTER}/{GITLAB_REPO}/{GTFS_BUS_ZIP} -d {TEMP_DIR_MASTER}/{GITLAB_REPO}/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)	
-	print('STDOUT: ' + result.stdout)
-	print('STDERR: ' + result.stderr)
+	result = subprocess.run(f'unzip -o {TEMP_DIR_MASTER}/{GITLAB_REPO}/{GTFS_BUS_ZIP} -d {TEMP_DIR_MASTER}/{GITLAB_REPO}/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+	print_outputs([result.stdout, result.stderr])
 
 	print('--- Copying master to weekly-updated-service branch')
 	result = subprocess.run(f'cp -r {TEMP_DIR_MASTER}/{GITLAB_REPO}/*.txt {TEMP_DIR_WEEKLY_UPDATED_SERVICE}/{GITLAB_REPO}/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	print('STDOUT: ' + result.stdout)
-	print('STDERR: ' + result.stderr)
+	print_outputs([result.stdout, result.stderr])
 
 	print('--- Copy README.md file from master to weekly-updated-service branch')
 	result = subprocess.run(f'cp {TEMP_DIR_MASTER}/{GITLAB_REPO}/README.md {TEMP_DIR_WEEKLY_UPDATED_SERVICE}/{GITLAB_REPO}/', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	print('STDOUT: ' + result.stdout)
-	print('STDERR: ' + result.stderr)
+	print_outputs([result.stdout, result.stderr])
 	return
 
 def add_calendar_dates_to_master():
@@ -113,8 +116,7 @@ def add_calendar_dates_to_master():
 						 cp {TEMP_DIR_FTP}/calendar_dates.txt {new_folder}
 						''', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 	result = subprocess.run(f'mkdir -p {new_folder}; cp {TEMP_DIR_FTP}/calendar_dates.txt {new_folder}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-	print('STDOUT: ' + result.stdout)
-	print('STDERR: ' + result.stderr)
+	print_outputs([result.stdout, result.stderr])
 
 	return
 
@@ -126,8 +128,7 @@ def zip_gtfs(directory):
 						  cd {directory};
 						  zip -r gtfs_bus *.txt
 						  ''', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-		print('STDOUT: ' + result.stdout)
-		print('STDERR: ' + result.stderr)
+		print_outputs([result.stdout, result.stderr])
 
 		print(f'GTFS files zipped in: {directory}')
 	except:
@@ -138,8 +139,7 @@ def remove_txt_files(directory):
 	try:
 		print(f'--- Removing txt files from {directory}')
 		result = subprocess.run(f'rm {directory}*.txt', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-		print('STDOUT: ' + result.stdout)
-		print('STDERR: ' + result.stderr)
+		print_outputs([result.stdout, result.stderr])
 	except:
 		print('failed to remove txt files')
 	return
@@ -179,11 +179,14 @@ def main():
 				print(f'New calendar_dates.txt file is not empty. Length: {str(len(new_data))}')
 
 			# get the express data as a list
-			express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
-			print(f'Length of Express entries: {str(len(express_data))}')
+			# express_data = list_helper.get_file_as_list(INPUT_DIR + EXPRESS_FILENAME)
+			# print(f'Length of Express entries: {str(len(express_data))}')
 
 			# combine the new calendar_dates.txt file with the express data
-			weekly_express_combined_data = list_helper.combine_list_data(new_data, express_data)
+			# weekly_express_combined_data = list_helper.combine_list_data(new_data, express_data)
+			
+			# for now, just use the new calendar_dates.txt file. The GTFS was provided with the DSE data already included.
+			weekly_express_combined_data = new_data
 			
 			# combine the old calendar_dates.txt file with the newly combined data 
 			result = list_helper.combine_list_data(old_data, weekly_express_combined_data)
