@@ -1,7 +1,6 @@
 import os
 import datetime
 import pytz
-import PyRSS2Gen
 
 import subprocess
 import filecmp
@@ -48,34 +47,12 @@ GITLAB_REPO = 'gtfs_bus'
 GITLAB_PATH = f'https://gitlab.com/LACMTA/{GITLAB_REPO}/'
 GTFS_BUS_ZIP = 'gtfs_bus.zip'
 
-ROOT_DIR = os.getcwd()
-INPUT_DIR = ROOT_DIR + '/inputs/'
-OUTPUT_DIR = ROOT_DIR + '/data/'
 TEMP_DIR_FTP = 'temp/ftp'
 TEMP_DIR_MASTER = 'temp/master'
 TEMP_DIR_WEEKLY_UPDATED_SERVICE = 'temp/weekly-updated-service'
 
 CALENDAR_DATES_FILENAME = 'calendar_dates.txt'
 EXPRESS_FILENAME = 'dse-sofi-express.csv'
-
-def update_rss(title, link, description):
-	log("Now: " + str(datetime.datetime.now(pytz.timezone('US/Pacific'))))
-
-	rss = PyRSS2Gen.RSS2(
-		title = "LACMTA Bus GTFS Updates",
-		link = GITLAB_PATH,
-		description = "This RSS feed updates when the LA Metro Bus GTFS data is updated.",
-		lastBuildDate = datetime.datetime.now(pytz.timezone('US/Pacific')),
-		items = [
-			PyRSS2Gen.RSSItem(
-				title = title,
-				link = link,
-				description = description,
-				pubDate = datetime.datetime.now(pytz.timezone('US/Pacific'))
-			)])
-
-	rss.write_xml(open(OUTPUT_DIR + "rss.xml", "w"))
-	return
 
 def has_new_calendar_dates(f1, f2):
 	# may need a better way to do this
@@ -207,7 +184,6 @@ def main():
 			# Not sure if we actually want to keep udpating the master branch
 			# git_helper.commit_and_push(str(datetime.date.today()) + ' weekly update', 'temp/master/gtfs_bus/')
 
-			update_rss("Weekly Updated GTFS", "https://gitlab.com/LACMTA/gtfs_bus/-/raw/weekly-updated-service/gtfs_bus.zip", "A new GTFS zip file for LA Metro's bus service has been uploaded with this week's new calendar_dates.txt file. The calendar_dates.txt file contains updated service for the upcoming 2 weeks.")
 		else:
 			print('FTP file - failure')
 		
