@@ -1,0 +1,83 @@
+# GitHub Action to update GTFS data weekly and on-demand
+# This workflow downloads calendar_dates.txt from FTP server and updates the GTFS repository
+
+name: Update GTFS Data
+
+# Runs every Wednesday at 11:00 UTC (3:00 AM PST)
+# calendar_dates.txt is auto-generated at 12am every Wednesday morning and should be on the FTP server by 12:30am
+on:
+  # Weekly schedule - every Wednesday at 11:00 UTC
+  schedule:
+    - cron: "0 11 * * WED"
+
+  # Manual trigger - provides button in GitHub UI to run on demand
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual run"
+        required: false
+        default: "Manual trigger"
+
+jobs:
+  update-gtfs:
+    name: Update GTFS Calendar Dates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          # Need full history for git operations
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install python-dateutil
+
+      - name: Create temp directories
+        run: |
+          mkdir -p temp/ftp
+          mkdir -p temp/master
+          mkdir -p temp/weekly-updated-service
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Update GTFS data
+        run: python update_gtfs.py
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          SERVER: ${{ secrets.SERVER }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: "Auto Updated GTFS data on ${{ steps.date.outputs.date }}"
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
+          add: "."
+
+      - name: Summary
+        run: |
+          echo "## GTFS Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: ${{ steps.date.outputs.date }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "- **Reason**: ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- **Status**: ✅ Completed successfully" >> $GITHUB_STEP_SUMMARY
