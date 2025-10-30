@@ -62,14 +62,6 @@ jobs:
           SERVER: ${{ secrets.SERVER }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
-      - name: Commit and push changes
-        uses: EndBug/add-and-commit@v7
-        with:
-          message: "Auto Updated GTFS data on ${{ steps.date.outputs.date }}"
-          committer_name: GitHub Actions
-          committer_email: actions@github.com
-          add: "."
-
       - name: Summary
         run: |
           echo "## GTFS Update Summary" >> $GITHUB_STEP_SUMMARY
