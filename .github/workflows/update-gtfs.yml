@@ -1,10 +1,8 @@
 # GitHub Action to update GTFS data weekly and on-demand
-# This workflow downloads calendar_dates.txt from FTP server and updates the GTFS repository
 
 name: Update GTFS Data
 
 # Runs every Wednesday at 11:00 UTC (3:00 AM PST)
-# calendar_dates.txt is auto-generated at 12am every Wednesday morning and should be on the FTP server by 12:30am
 on:
   # Weekly schedule - every Wednesday at 11:00 UTC
   schedule:
@@ -20,7 +18,7 @@ on:
 
 jobs:
   update-gtfs:
-    name: Update GTFS Calendar Dates
+    name: Update GTFS
     runs-on: ubuntu-latest
 
     steps:

@@ -2,7 +2,7 @@
 
 ## Update GTFS Data Workflow
 
-The `update-gtfs.yml` workflow automates the process of updating GTFS data by downloading the latest `calendar_dates.txt` file from an FTP server and updating the repository.
+The `update-gtfs.yml` workflow automates the process of updating GTFS data by running update-gtfs.py
 
 ### Manual Execution
 
