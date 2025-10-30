@@ -19,6 +19,8 @@ FTP_SERVER = os.environ.get('FTP_SERVER')
 FTP_USER = os.environ.get('FTP_USER')
 FTP_PW = os.environ.get('FTP_PW')
 GITLAB_TOKEN = os.environ.get('GITLAB_TOKEN')
+GITLAB_USER = os.environ.get('GITLAB_USER')
+GITLAB_REPO = os.environ.get('GITLAB_REPO')
 
 log = log_helper.build_log(True)
 
@@ -28,7 +30,6 @@ REMOTE_FTP_PATH = '/nextbus/prod/'
 
 
 # Path variables
-GITLAB_REPO = 'gtfs_bus'
 GITLAB_PATH = f'https://gitlab.com/LACMTA/{GITLAB_REPO}/'
 GTFS_BUS_ZIP = 'gtfs_bus.zip'
 
@@ -113,7 +114,7 @@ def main():
 		# into the 'temp/ftp/' directory
 		if ftp_helper.get_file_from_ftp(CALENDAR_DATES_FILENAME, TEMP_DIR_FTP):
 			print('FTP file downloaded successfully')
-			gitlab_url = 'https://oauth2:' + GITLAB_TOKEN + '@gitlab.com/LACMTA/gtfs_bus.git'
+			gitlab_url = f'https://{GITLAB_USER}:{GITLAB_TOKEN}@gitlab.com/LACMTA/{GITLAB_REPO}.git'
 
 			# clone [master] branch into temp/master directory
 			git_helper.clone_branch(gitlab_url, 'master', TEMP_DIR_MASTER)
