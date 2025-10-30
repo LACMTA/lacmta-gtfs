@@ -20,11 +20,6 @@ jobs:
   update-gtfs:
     name: Update GTFS
     runs-on: ubuntu-latest
-    env:
-      SERVER: ${{ secrets.FTP_SERVER }}
-      FTP_USERNAME: ${{ secrets.FTP_USER }}
-      FTP_PASS: ${{ secrets.FTP_PW }}
-      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
     steps:
       - name: Get current date
