@@ -18,10 +18,12 @@ To run the workflow manually:
 
 The workflow requires the following GitHub Secrets to be configured:
 
-- `FTP_USERNAME`: Username for FTP server access
-- `FTP_PASS`: Password for FTP server access
-- `SERVER`: FTP server hostname/IP address
+- `FTP_USER`: Username for FTP server access
+- `FTP_PW`: Password for FTP server access
+- `FTP_SERVER`: FTP server URL
 - `GITLAB_TOKEN`: Token for accessing the GitLab repository
+- `GITLAB_USER`: The GitLab username associated with the token
+- `GITLAB_REPO`: The repo on GitLab to be updated
 
 ### Monitoring
 
