@@ -6,18 +6,19 @@ You will need the FTP credentials to run `update_gtfs.py`.
 
 ## Notes
 
-### Express Service
-
-The file at `/inputs/dse-sofi-express.csv` contains special Express Bus service serving Dodger Stadium and SoFi Stadium during baseball and football seasons.
-
 ### Calendar_dates.txt
 
 A new `calendar_dates.txt` file is generated weekly Tuesday night/Wednesday morning. It contains data for only the following two weeks. Each new `calendar_dates.txt` overlaps the previous one by 1 week. As a result, the weekly `calendar_dates.txt` file cannot just be appended to the GTFS base `calendar_dates.txt` file. The GTFS base files are the ones released from the most recent shakeup.
 
-This automation script performs the following steps:
+This script performs the following steps:
 
-1. Load GTFS base `calendar_dates.txt` file.
-2. Load the weekly `calendar_dates.txt` file.
+1. Download the new `calendar_dates.txt` file from the FTP location, proceeding only if the file exists and is not empty (* technicaly the current script doesn't quit if the file is empty).
+2. Clone the [`master`](https://gitlab.com/LACMTA/gtfs_bus) branch from the Gitlab gtfs_bus repository and unzip the files into a temp folder.
+3. Clone the [`weekly-updated-service`](https://gitlab.com/LACMTA/gtfs_bus/-/tree/weekly-updated-service?ref_type=heads) branch from the Gitlab gtfs_bus repository and unzip the files into a temp folder.
+4. Combine the new `calendar_dates.txt` data with the `calendar_dates.txt` data from the `master` branch, sorting it and removing duplicates.
+5. Save the updated file to the `weekly-updated-service` temp folder.
+6. Generate a new `gtfs_bus.zip` file from the `.txt` files in the `weekly-updated-service` temp folder.
+7. Commit the changes to the `weekly-updated-service` branch and push to GitLab.
 
 ## Decisions
 
